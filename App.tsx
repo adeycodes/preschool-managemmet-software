@@ -63,7 +63,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   // Navigation State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'students' | 'settings' | 'demo'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'students' | 'settings'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isEditorActive, setIsEditorActive] = useState(false);
 
@@ -306,7 +306,6 @@ function App() {
             <h1 className="text-xl font-bold text-gray-800 capitalize">
               {activeTab === 'dashboard' ? 'Overview' : activeTab}
             </h1>
-            <button onClick={() => setActiveTab('demo')} className="ml-4 text-sm text-blue-600 underline hidden sm:inline">Demo</button>
           </div>
           <div className="text-sm text-gray-500 hidden sm:block">
              {appSettings.term} • {appSettings.session}
@@ -341,14 +340,6 @@ function App() {
                 settings={appSettings}
                 onSave={setAppSettings}
               />
-            )}
-            {activeTab === 'demo' && (
-              <div>
-                {/* Lazy-load demo component to keep main bundle small */}
-                {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-                {/* @ts-ignore-next-line */}
-                {React.createElement(require('./components/RemarksDemo').default)}
-              </div>
             )}
           </div>
         </main>
