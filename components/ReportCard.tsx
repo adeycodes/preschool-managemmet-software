@@ -43,8 +43,43 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
       });
   };
 
-  return (
-    <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-[10mm] sm:p-[15mm] box-border font-sans relative text-slate-900 flex flex-col justify-between shadow-sm sm:shadow-none">
+    return (
+        <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-[10mm] sm:p-[15mm] box-border font-sans relative text-slate-900 flex flex-col justify-between shadow-sm sm:shadow-none">
+            <style>{`
+                /* Print-friendly adjustments to keep the report on one A4 page */
+                @media print {
+                    @page { size: A4 portrait; margin: 6mm; }
+                    html, body { height: 297mm; }
+                    #report-card { box-shadow: none !important; background: #fff !important; }
+
+                    /* Reduce paddings and fonts uniformly for print */
+                    #report-card { padding: 8mm !important; }
+                    #report-card h1 { font-size: 20px !important; }
+                    #report-card h2 { font-size: 11px !important; }
+                    #report-card p, #report-card td, #report-card th, #report-card span, #report-card div { color: #000 !important; }
+
+                    /* Shrink various text sizes */
+                    #report-card .text-3xl { font-size: 20px !important; }
+                    #report-card .text-lg { font-size: 12px !important; }
+                    #report-card .text-sm, #report-card .text-xs, #report-card .text-[9px], #report-card .text-[10px] { font-size: 9px !important; }
+
+                    /* Reduce photo/logo sizes */
+                    #report-card img { max-height: 64px !important; max-width: 120px !important; }
+                    #report-card .w-24 { width: 56px !important; }
+                    #report-card .h-32 { height: 72px !important; }
+
+                    /* Table adjustments */
+                    #report-card table { font-size: 9px !important; border-collapse: collapse !important; }
+                    #report-card th, #report-card td { padding: 3px 6px !important; }
+
+                    /* Reduce spacing for remarks and signatures */
+                    #report-card .min-w-[150px] { min-width: 110px !important; }
+                    #report-card .font-handwriting { font-size: 12px !important; }
+
+                    /* Prevent content from breaking across pages where possible */
+                    #report-card, #report-card * { page-break-inside: avoid !important; }
+                }
+            `}</style>
       
       <div>
         {/* HEADER */}
