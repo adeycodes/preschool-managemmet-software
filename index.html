@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KinderReport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f3f4f6;
+      }
+      
+      /* Print styles - strictly scoped */
+      @media print {
+        @page {
+          size: A4 portrait;
+          margin: 0;
+        }
+        
+        html, body {
+          width: 210mm;
+          height: 297mm;
+          margin: 0 !important;
+          padding: 0 !important;
+          background-color: white !important;
+        }
+
+        /* Hide all non-printable elements by default */
+        body * {
+          visibility: hidden;
+        }
+
+        /* Explicitly show the report card and its children */
+        #report-card, #report-card * {
+          visibility: visible;
+        }
+
+        /* Position Report Card to fill the page exactly */
+        #report-card {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 210mm;
+          min-height: 297mm;
+          margin: 0;
+          z-index: 9999;
+          background: white;
+          box-shadow: none !important;
+        }
+
+        /* Ensure .no-print elements are removed from layout */
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "react": "https://esm.sh/react@^19.2.1",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.559.0",
+    "exceljs": "https://esm.sh/exceljs@4.4.0",
+    "file-saver": "https://esm.sh/file-saver@2.0.5",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
