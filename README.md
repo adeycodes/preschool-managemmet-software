@@ -10,11 +10,16 @@ View your app in AI Studio: https://ai.studio/apps/drive/1GxSWYohpIIuesi5kV2ukzC
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js (16+ recommended)
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Copy `.env.example` to `.env.local` (or `.env`) and fill in your keys:
+   - `GEMINI_API_KEY` — Google Gemini API key
+   - `SUPABASE_URL` and `SUPABASE_KEY` — (optional) if you use Supabase auth
 3. Run the app:
    `npm run dev`
+
+Notes:
+- Never commit real API keys to source control. Use `.env.local` which is gitignored by default.
+- If you run into CORS or network issues, ensure the dev server port `3000` is accessible.

@@ -5,9 +5,9 @@ import { User } from '../types';
 // ==========================================
 // 🔴 SUPABASE KEYS 🔴
 // ==========================================
-// Using the keys provided in your file
-const SUPABASE_URL = 'https://hblypgjnzkuxnoqvptws.supabase.co'; 
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhibHlwZ2puemt1eG5vcXZwdHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NDY0NTcsImV4cCI6MjA4MTAyMjQ1N30._oENzEoCbnn3gxbgFyw3a30rP3_H3JhE7OdX6oV5Rf4';
+// Read Supabase config from environment variables. Do NOT hardcode secrets.
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
 
 // Initialize Client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -23,8 +23,8 @@ const mapSupabaseUser = (u: any): User => {
 };
 
 const checkConfig = () => {
-  if (SUPABASE_URL.includes('your-project-id') || SUPABASE_KEY.includes('your-anon-key')) {
-    throw new Error('Supabase Not Configured. Please open "services/authService.ts" and add your SUPABASE_URL and SUPABASE_KEY.');
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    throw new Error('Supabase Not Configured. Please set SUPABASE_URL and SUPABASE_KEY in your environment (.env.local).');
   }
 };
 
