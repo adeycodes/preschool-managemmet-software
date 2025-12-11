@@ -15,8 +15,8 @@ export const generateExcel = async (data: StudentData) => {
   const boldFont = { name: 'Arial', bold: true, size: 10, color: { argb: 'FF000000' } };
   const headerFont = { name: 'Arial', bold: true, size: 14, color: { argb: 'FFCC0000' } }; // Red
   const subHeaderFont = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
-  const tableHeaderFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCE6F1' } }; // Light Blue
-  const grayFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEEEEEE' } };
+  const tableHeaderFill = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFDCE6F1' } }; // Light Blue
+  const grayFill = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFEEEEEE' } };
   
   const centerAlign: Partial<ExcelJS.Alignment> = { vertical: 'middle', horizontal: 'center' };
   const leftAlign: Partial<ExcelJS.Alignment> = { vertical: 'middle', horizontal: 'left' };
@@ -132,7 +132,7 @@ export const generateExcel = async (data: StudentData) => {
   const conductHeader = sheet.addRow(['CONDUCT ASSESSMENT', 'A', 'B', 'C', 'D', 'E', 'F']);
   conductHeader.font = { ...boldFont, color: { argb: 'FF000000' } }; // Explicitly black
   conductHeader.eachCell(cell => {
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFCC0000' } }; // Red background
+    cell.fill = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFCC0000' } } as ExcelJS.Fill; // Red background
     cell.border = borderStyle;
     cell.alignment = centerAlign;
   });

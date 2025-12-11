@@ -43,8 +43,74 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
       });
   };
 
-  return (
-    <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-[10mm] sm:p-[15mm] box-border font-sans relative text-slate-900 flex flex-col justify-between shadow-sm sm:shadow-none">
+    // Print scaling: ensure report fits one A4 page when printing by
+    // measuring the rendered height and applying a transform scale before print.
+    const containerRef = React.useRef<HTMLDivElement | null>(null);
+
+    React.useEffect(() => {
+        const mmToPx = (mm: number) => mm * (96 / 25.4); // 96dpi assumption
+
+        const handleBeforePrint = () => {
+            const el = containerRef.current;
+            if (!el) return;
+
+            // Page available drawable area (A4 minus margins). We use the element's padding as margins.
+            const pageWidth = mmToPx(210);
+            const pageHeight = mmToPx(297);
+
+            // Compute available height inside page accounting for padding on the container
+            const style = window.getComputedStyle(el);
+            const padTop = parseFloat(style.paddingTop || '0');
+            const padBottom = parseFloat(style.paddingBottom || '0');
+            const availHeight = pageHeight - padTop - padBottom;
+
+            const rect = el.getBoundingClientRect();
+            const contentHeight = rect.height;
+
+            // Determine scale factor to fit contentHeight into availHeight
+            const scale = Math.min(1, availHeight / contentHeight);
+
+            // Also ensure width fits
+            const availWidth = pageWidth - (parseFloat(style.paddingLeft || '0') + parseFloat(style.paddingRight || '0'));
+            const widthScale = Math.min(1, availWidth / rect.width);
+
+            const finalScale = Math.min(scale, widthScale);
+
+            if (finalScale < 1) {
+                el.style.transformOrigin = 'top left';
+                el.style.transform = `scale(${finalScale})`;
+            }
+        };
+
+        const handleAfterPrint = () => {
+            const el = containerRef.current;
+            if (!el) return;
+            el.style.transform = '';
+            el.style.transformOrigin = '';
+        };
+
+        window.addEventListener('beforeprint', handleBeforePrint);
+        window.addEventListener('afterprint', handleAfterPrint);
+
+        // Also run once to prepare for print preview in some browsers
+        return () => {
+            window.removeEventListener('beforeprint', handleBeforePrint);
+            window.removeEventListener('afterprint', handleAfterPrint);
+        };
+    }, []);
+
+    return (
+        <div id="report-card" ref={containerRef} className="bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-[10mm] sm:p-[15mm] box-border font-sans relative text-slate-900 flex flex-col justify-between shadow-sm sm:shadow-none">
+            {/* Print-specific rules to ensure single-page output */}
+            <style>{`
+                @media print {
+                    @page { size: A4; margin: 0; }
+                    html, body { width: 210mm; height: 297mm; }
+                    #report-card { box-shadow: none !important; }
+                    /* Avoid page breaks inside the report card */
+                    #report-card, #report-card * { page-break-inside: avoid; }
+                }
+            `}</style>
       
       <div>
         {/* HEADER */}
