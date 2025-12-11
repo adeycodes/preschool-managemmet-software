@@ -45,7 +45,7 @@ export const generateExcel = async (data: StudentData) => {
   termCell.value = `REPORT FOR ${data.term.toUpperCase()} TERM ${data.session} SESSION`;
   termCell.font = { ...boldFont, size: 11, color: { argb: 'FF000000' } };
   termCell.alignment = centerAlign;
-  termCell.fill = grayFill;
+  termCell.fill = grayFill as ExcelJS.Fill;
   termCell.border = { bottom: { style: 'medium' } };
 
   // --- STUDENT INFO ---
@@ -71,7 +71,7 @@ export const generateExcel = async (data: StudentData) => {
   headerRow.height = 20;
   headerRow.eachCell((cell) => {
     cell.font = boldFont;
-    cell.fill = tableHeaderFill;
+    cell.fill = tableHeaderFill as ExcelJS.Fill;
     cell.border = borderStyle;
     cell.alignment = centerAlign;
   });
@@ -100,7 +100,7 @@ export const generateExcel = async (data: StudentData) => {
   const primeHeader = sheet.addRow(['PRIME AREAS OF LEARNING']);
   sheet.mergeCells(`A${primeHeader.number}:F${primeHeader.number}`);
   primeHeader.font = { ...boldFont, italic: true, color: { argb: 'FF000000' } };
-  primeHeader.getCell(1).fill = grayFill;
+  primeHeader.getCell(1).fill = grayFill as ExcelJS.Fill;
   primeHeader.getCell(1).border = borderStyle;
 
   data.subjects.filter(s => s.category === 'Prime').forEach(renderSubject);
@@ -108,7 +108,7 @@ export const generateExcel = async (data: StudentData) => {
   const specHeader = sheet.addRow(['SPECIFIC AREAS OF LEARNING']);
   sheet.mergeCells(`A${specHeader.number}:F${specHeader.number}`);
   specHeader.font = { ...boldFont, italic: true, color: { argb: 'FF000000' } };
-  specHeader.getCell(1).fill = grayFill;
+  specHeader.getCell(1).fill = grayFill as ExcelJS.Fill;
   specHeader.getCell(1).border = borderStyle;
 
   data.subjects.filter(s => s.category === 'Specific').forEach(renderSubject);
@@ -122,7 +122,7 @@ export const generateExcel = async (data: StudentData) => {
   totalRow.font = { ...boldFont, color: { argb: 'FF000000' } };
   totalRow.eachCell(cell => {
     cell.border = borderStyle;
-    cell.fill = grayFill;
+    cell.fill = grayFill as ExcelJS.Fill;
   });
   totalRow.getCell(1).alignment = { horizontal: 'right' };
 
