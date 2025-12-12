@@ -20,7 +20,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
       { grade: 'A', range: '70-89', remark: 'EXCEEDING' },
       { grade: 'B', range: '50-69', remark: 'EXPECTED' },
       { grade: 'C', range: '40-49', remark: 'EMERGING' },
-      { grade: 'D', range: '0-39', remark: 'NEEDS HELP' },
+      { grade: 'D', range: '0-39', remark: 'NEEDS SPECIAL HELP' },
   ];
 
   const renderSubjects = (subjects: Subject[]) => {
@@ -32,11 +32,11 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
         
         return (
             <tr key={s.id} className="border-b border-gray-100 last:border-0">
-                <td className="py-2 px-3 text-left text-[11px] text-gray-700 font-medium">{s.name}</td>
-                <td className="py-2 px-3 text-center text-[11px] text-gray-500">{displayScore(s.caScore)}</td>
-                <td className="py-2 px-3 text-center text-[11px] text-gray-500">{displayScore(s.examScore)}</td>
-                <td className="py-2 px-3 text-center text-[11px] font-bold text-gray-800">{total}</td>
-                <td className={`py-2 px-3 text-center text-[11px] font-bold ${gradeColor}`}>{grade}</td>
+                <td className="py-2 px-3 text-left text-[10px] text-gray-700 font-medium">{s.name}</td>
+                <td className="py-2 px-3 text-center text-[10px] text-gray-500">{displayScore(s.caScore)}</td>
+                <td className="py-2 px-3 text-center text-[10px] text-gray-500">{displayScore(s.examScore)}</td>
+                <td className="py-2 px-3 text-center text-[10px] font-bold text-gray-800">{total}</td>
+                <td className={`py-2 px-3 text-center text-[10px] font-bold ${gradeColor}`}>{grade}</td>
                 <td className="py-2 px-3 text-left text-[10px] text-gray-500 uppercase font-medium tracking-tight">{remark}</td>
             </tr>
         );
@@ -54,8 +54,8 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
 
                     /* Reduce paddings and fonts uniformly for print */
                     #report-card { padding: 8mm !important; }
-                    #report-card h1 { font-size: 20px !important; }
-                    #report-card h2 { font-size: 11px !important; }
+                    #report-card h1 { font-size: 22px !important; }
+                    #report-card h2 { font-size: 12px !important; }
                     #report-card p, #report-card td, #report-card th, #report-card span, #report-card div { color: #000 !important; }
 
                     /* Shrink various text sizes */
@@ -130,34 +130,20 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
 
                 {/* Info Grid - Right Side */}
                 <div className="flex-1 grid grid-cols-3 gap-y-4 gap-x-6">
-                    {/* Row 1 */}
+                    {/* Name of Pupil */}
                     <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Student Name</p>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Name of Pupil</p>
                         <p className="text-sm font-bold text-gray-900 leading-tight">{data.fullName}</p>
                     </div>
+                    {/* Age */}
                     <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Class</p>
-                        <p className="text-xs font-bold text-gray-900">{data.className}</p>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Age</p>
+                        <p className="text-xs font-bold text-gray-900">{data.age}</p>
                     </div>
+                    {/* Sex */}
                     <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Session</p>
-                        <p className="text-xs font-bold text-gray-900">{data.term} • {data.session}</p>
-                    </div>
-
-                    {/* Row 2 */}
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Attendance</p>
-                        <p className="text-xs font-bold text-gray-900">
-                            {data.timesPresent} <span className="font-normal text-gray-500">of</span> {data.schoolOpened} <span className="text-[9px] text-gray-400">DAYS</span>
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Details</p>
-                        <p className="text-xs font-bold text-gray-900">{data.age} Yrs • {data.gender}</p>
-                    </div>
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Next Term</p>
-                        <p className="text-xs font-bold text-[#b91c1c]">{data.nextTermBegins}</p>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Sex</p>
+                        <p className="text-xs font-bold text-gray-900">{data.gender}</p>
                     </div>
                 </div>
             </div>
