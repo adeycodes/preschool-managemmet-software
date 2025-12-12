@@ -129,21 +129,53 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                 </div>
 
                 {/* Info Grid - Right Side */}
-                <div className="flex-1 grid grid-cols-3 gap-y-4 gap-x-6">
+                <div className="flex-1 grid grid-cols-3 gap-y-3 gap-x-4">
                     {/* Name of Pupil */}
                     <div>
                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Name of Pupil</p>
                         <p className="text-sm font-bold text-gray-900 leading-tight">{data.fullName}</p>
                     </div>
+
                     {/* Age */}
                     <div>
                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Age</p>
                         <p className="text-xs font-bold text-gray-900">{data.age}</p>
                     </div>
+
                     {/* Sex */}
                     <div>
                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Sex</p>
                         <p className="text-xs font-bold text-gray-900">{data.gender}</p>
+                    </div>
+
+                    {/* Class */}
+                    <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Class</p>
+                        <p className="text-xs font-bold text-gray-900">{data.className}</p>
+                    </div>
+
+                    {/* Number on Roll */}
+                    <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Number on Roll</p>
+                        <p className="text-xs font-bold text-gray-900">{data.rollNumber || '-'}</p>
+                    </div>
+
+                    {/* School Opened */}
+                    <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">School Opened</p>
+                        <p className="text-xs font-bold text-gray-900">{data.schoolOpened}</p>
+                    </div>
+
+                    {/* Times Present */}
+                    <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Times Present</p>
+                        <p className="text-xs font-bold text-gray-900">{data.timesPresent}</p>
+                    </div>
+
+                    {/* Times Absent */}
+                    <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Times Absent</p>
+                        <p className="text-xs font-bold text-gray-900">{(data.schoolOpened || 0) - (data.timesPresent || 0)}</p>
                     </div>
                 </div>
             </div>
@@ -164,7 +196,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                         <th className="py-2 px-3 text-center text-[9px] font-bold uppercase tracking-wider w-[12%]">Exam (60)</th>
                         <th className="py-2 px-3 text-center text-[9px] font-bold uppercase tracking-wider w-[10%]">Total</th>
                         <th className="py-2 px-3 text-center text-[9px] font-bold uppercase tracking-wider w-[10%]">Grade</th>
-                        <th className="py-2 px-3 text-left text-[9px] font-bold uppercase tracking-wider w-[21%]">Remark</th>
+                        <th className="py-2 px-3 text-left text-[9px] f-bold uppercase tracking-wider w-[21%]">Remark</th>
                     </tr>
                 </thead>
                 <tbody>
