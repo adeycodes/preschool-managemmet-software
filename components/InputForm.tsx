@@ -67,12 +67,25 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
     }
   };
 
+  // Center Name Image
   const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         handleInputChange('schoolLogoUrl', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Left Crest
+  const handleCrestUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleInputChange('schoolCrestUrl', reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -216,25 +229,62 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                 </div>
               </div>
 
-              {/* Collapsible School Logo Section */}
+              {/* Collapsible School Branding Section */}
               <div className="md:col-span-2 pt-4 border-t border-gray-200">
                   <details className="group">
-                    <summary className="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700 hover:text-red-700">
+                    <summary className="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700 hover:text-red-700 select-none">
                       <School size={16} />
-                      <span>School Branding & Logo (Optional)</span>
+                      <span>School Branding (Header & Logo)</span>
                     </summary>
-                    <div className="mt-4 p-4 bg-white rounded-lg border border-gray-300 flex items-center gap-4">
-                       <div className="w-16 h-16 bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden">
-                         {data.schoolLogoUrl ? (
-                           <img src={data.schoolLogoUrl} alt="Logo" className="w-full h-full object-contain" />
-                         ) : (
-                           <School size={24} className="text-gray-300" />
-                         )}
-                       </div>
-                       <label className="cursor-pointer bg-white border border-gray-400 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-bold text-gray-900 transition shadow-sm">
-                         Change School Logo
-                         <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                       </label>
+                    <div className="mt-4 space-y-6">
+                        {/* 1. School Crest (Left) */}
+                        <div className="p-4 bg-white rounded-lg border border-gray-300 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                           <div className="w-16 h-16 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden relative flex-shrink-0">
+                             {data.schoolCrestUrl ? (
+                               <img src={data.schoolCrestUrl} alt="Crest" className="w-full h-full object-contain p-1" />
+                             ) : (
+                               <School size={24} className="text-gray-300" />
+                             )}
+                           </div>
+                           <div className="flex-1">
+                             <div className="flex items-center justify-between mb-2">
+                               <span className="text-sm font-bold text-gray-900">School Crest (Left)</span>
+                               <label className="cursor-pointer text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                                 <Upload size={12} /> Upload
+                                 <input type="file" className="hidden" accept="image/*" onChange={handleCrestUpload} />
+                               </label>
+                             </div>
+                             <p className="text-xs text-gray-500">
+                                This is the small logo displayed on the far left of the header. Defaults to a building icon.
+                             </p>
+                           </div>
+                        </div>
+
+                        {/* 2. School Name Image (Center) */}
+                        <div className="p-4 bg-white rounded-lg border border-gray-300 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                           <div className="w-full sm:w-64 h-20 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden relative">
+                             {data.schoolLogoUrl ? (
+                               <img src={data.schoolLogoUrl} alt="Name Image" className="w-full h-full object-contain p-2" />
+                             ) : (
+                               <div className="text-center p-2">
+                                  <span className="text-xs text-gray-400">No Image</span>
+                               </div>
+                             )}
+                           </div>
+                           <div className="flex-1">
+                             <div className="flex items-center justify-between mb-2">
+                               <span className="text-sm font-bold text-gray-900">School Name Image (Center)</span>
+                               <label className="cursor-pointer text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                                 <Upload size={12} /> Upload
+                                 <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                               </label>
+                             </div>
+                             <p className="text-xs text-gray-500 leading-relaxed">
+                                Upload your "LauraStephens" fancy text image here. <br/>
+                                <strong className="text-gray-700">Note:</strong> If uploaded, this replaces the typed school name in the center.
+                             </p>
+                           </div>
+                        </div>
                     </div>
                   </details>
               </div>
@@ -314,7 +364,8 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                               max={40}
                               value={sub.caScore || ''}
                               onChange={(e) => handleSubjectChange(sub.id, 'caScore', e.target.value)}
-                              className="w-20 p-2 border-2 border-gray-300 rounded text-center bg-white text-gray-900 font-bold focus:border-blue-500 focus:ring-0 outline-none transition placeholder-gray-400"
+                              onFocus={(e) => e.target.select()}
+                              className="w-full max-w-[5rem] p-2.5 border-2 border-gray-300 rounded-lg text-center bg-white text-gray-900 font-bold focus:border-blue-500 focus:ring-0 outline-none transition placeholder-gray-400 text-lg"
                               placeholder="0"
                             />
                           </td>
@@ -324,7 +375,8 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                               max={60}
                               value={sub.examScore || ''}
                               onChange={(e) => handleSubjectChange(sub.id, 'examScore', e.target.value)}
-                              className="w-20 p-2 border-2 border-gray-300 rounded text-center bg-white text-gray-900 font-bold focus:border-blue-500 focus:ring-0 outline-none transition placeholder-gray-400"
+                              onFocus={(e) => e.target.select()}
+                              className="w-full max-w-[5rem] p-2.5 border-2 border-gray-300 rounded-lg text-center bg-white text-gray-900 font-bold focus:border-blue-500 focus:ring-0 outline-none transition placeholder-gray-400 text-lg"
                               placeholder="0"
                             />
                           </td>

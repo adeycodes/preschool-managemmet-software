@@ -76,6 +76,25 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
                   className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>
+
+               {/* Default School Crest */}
+               <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Default School Crest (Left)</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] relative bg-gray-50">
+                      {formData.defaultSchoolCrestUrl ? (
+                          <>
+                              <img src={formData.defaultSchoolCrestUrl} alt="Crest" className="max-h-16 object-contain mb-2" />
+                              <button type="button" onClick={() => clearImage('defaultSchoolCrestUrl')} className="absolute top-2 right-2 p-1 bg-white rounded-full text-red-600 hover:bg-red-50"><Trash2 size={14}/></button>
+                          </>
+                      ) : (
+                          <label className="cursor-pointer text-center">
+                              <Upload size={20} className="mx-auto text-gray-400 mb-1" />
+                              <span className="text-xs text-blue-600 font-medium">Upload Crest</span>
+                              <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload('defaultSchoolCrestUrl')} />
+                          </label>
+                      )}
+                  </div>
+               </div>
             </div>
 
             {/* Session Details */}

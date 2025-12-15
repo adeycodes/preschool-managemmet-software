@@ -38,6 +38,7 @@ const createInitialStudent = (settings: AppSettings): StudentData => ({
   schoolAddress: settings.schoolAddress,
   schoolPhone: settings.schoolPhone,
   schoolLogoUrl: null,
+  schoolCrestUrl: settings.defaultSchoolCrestUrl || null,
   fullName: '',
   age: '' as any,
   gender: '',
@@ -142,6 +143,7 @@ function App() {
              schoolName: s.schoolName || DEFAULT_SETTINGS.schoolName,
              schoolAddress: s.schoolAddress || DEFAULT_SETTINGS.schoolAddress,
              schoolPhone: s.schoolPhone || DEFAULT_SETTINGS.schoolPhone,
+             schoolCrestUrl: s.schoolCrestUrl || null, // Hydrate new field
              subjects: INITIAL_SUBJECTS.map(initSub => {
                 const existing = s.subjects?.find((existingSub: any) => existingSub.id === initSub.id);
                 return existing || initSub;
@@ -188,6 +190,7 @@ function App() {
         const last = students[students.length - 1];
         newStudent.className = last.className;
         newStudent.schoolLogoUrl = last.schoolLogoUrl;
+        newStudent.schoolCrestUrl = last.schoolCrestUrl || newStudent.schoolCrestUrl;
         // Also inherit stamps if they exist on previous student to maintain consistency
         newStudent.teacherSignatureUrl = last.teacherSignatureUrl || newStudent.teacherSignatureUrl;
         newStudent.headTeacherStampUrl = last.headTeacherStampUrl || newStudent.headTeacherStampUrl;
@@ -325,6 +328,7 @@ function App() {
                         session: appSettings.session,
                         nextTermBegins: appSettings.nextTermBegins,
                         // Ensure stamps fall back to settings if not present on student
+                        schoolCrestUrl: activeStudent.schoolCrestUrl || appSettings.defaultSchoolCrestUrl,
                         teacherSignatureUrl: activeStudent.teacherSignatureUrl || appSettings.defaultTeacherSignatureUrl,
                         headTeacherStampUrl: activeStudent.headTeacherStampUrl || appSettings.defaultHeadTeacherStampUrl,
                         headOfSchoolStampUrl: activeStudent.headOfSchoolStampUrl || appSettings.defaultHeadOfSchoolStampUrl,

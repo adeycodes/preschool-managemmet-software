@@ -32,6 +32,7 @@ export interface AppSettings {
   defaultHeadName: string;
   defaultHeadOfSchoolName: string;
   // Images
+  defaultSchoolCrestUrl?: string | null; // New: Logo on the left
   defaultTeacherSignatureUrl?: string | null;
   defaultHeadTeacherStampUrl?: string | null;
   defaultHeadOfSchoolStampUrl?: string | null;
@@ -44,7 +45,8 @@ export interface StudentData {
   schoolName: string;
   schoolAddress: string;
   schoolPhone: string;
-  schoolLogoUrl: string | null;
+  schoolLogoUrl: string | null; // Used for Center Name Image
+  schoolCrestUrl: string | null; // New: Used for Left Logo
 
   // Personal Info
   fullName: string;

@@ -102,27 +102,46 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
       <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] h-[297mm] p-[6mm] box-border font-sans relative text-slate-900 flex flex-col shadow-sm sm:shadow-none overflow-hidden">
         
         {/* HEADER */}
-        <div className="flex justify-center items-center mb-1 border-b border-gray-200 pb-1 flex-shrink-0">
+        <div className="flex justify-center items-center mb-1 border-b border-gray-200 pb-2 flex-shrink-0">
+             {/* Container for Logo + Name/Image */}
             <div className="flex items-center gap-4">
+                {/* 1. The School Crest (Left Side) */}
                 <div className="text-red-800 flex-shrink-0">
-                      {data.schoolLogoUrl ? (
-                          <img src={data.schoolLogoUrl} className="h-16 w-auto object-contain" alt="Logo" />
-                      ) : (
-                          <School size={54} strokeWidth={1.5} color="#8B2E2E" />
-                      )}
+                    {data.schoolCrestUrl ? (
+                         <img src={data.schoolCrestUrl} className="h-28 w-28 object-contain" alt="Crest" />
+                    ) : (
+                      <School size={90} strokeWidth={1.0} color="#8B2E2E" />
+                    )}
                 </div>
-                <div className="text-left">
-                    <h1 className="text-[#8B2E2E] mb-1 leading-none flex items-baseline gap-3">
-                        <span className="text-5xl" style={{ fontFamily: "'UnifrakturMaguntia', cursive", letterSpacing: '-2px' }}>
-                            {firstName}
-                        </span>
-                        {restName && (
-                            <span className="text-2xl font-bold font-serif uppercase tracking-widest text-[#b91c1c]">
-                                {restName}
+
+                {/* 2. The Name Part - Either Text or Image */}
+                <div className="flex flex-col items-center">
+                    {data.schoolLogoUrl ? (
+                        <div className="flex items-end gap-3 mt-1 mb-1">
+                            <img 
+                                src={data.schoolLogoUrl} 
+                                className="h-10 md:h-12 w-auto object-contain max-w-[250px]" 
+                                alt="School Name" 
+                            />
+                            <span className="text-2xl font-bold font-serif uppercase tracking-widest text-[#b91c1c] mb-1 leading-none">
+                                {restName || 'SCHOOL'}
                             </span>
-                        )}
-                    </h1>
-                    <div className="text-[11px] text-gray-600 font-medium leading-tight word-case tracking-wide mt-0">
+                        </div>
+                    ) : (
+                        <h1 className="text-[#8B2E2E] mb-1 leading-none flex items-baseline justify-center gap-2">
+                            <span className="text-4xl" style={{ fontFamily: "'Cinzel', serif", fontWeight: 700 }}>
+                                {firstName}
+                            </span>
+                            {restName && (
+                                <span className="text-2xl font-bold font-serif uppercase tracking-widest text-[#b91c1c]">
+                                    {restName}
+                                </span>
+                            )}
+                        </h1>
+                    )}
+                    
+                    {/* Address - Always under the name/image */}
+                     <div className="text-[11px] text-gray-600 font-medium leading-tight uppercase tracking-wide text-center">
                         <p>{data.schoolAddress || 'Address Line 1'}</p>
                         <p>Tel: {data.schoolPhone || '000-000-000'}</p>
                     </div>
