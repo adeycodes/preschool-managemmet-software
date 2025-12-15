@@ -1,103 +1,14 @@
+
 import React from 'react';
 import { School, Check, Printer } from 'lucide-react';
+import { StudentData, Subject } from '../types';
+import { calculateTotal, getGradeInfo, calculateAverage, getStudentTotalScore, getTotalPossibleScore } from '../utils';
 
-interface Subject {
-  id: string;
-  name: string;
-  caScore: number;
-  examScore: number;
-  category: 'Prime' | 'Specific';
+interface ReportCardProps {
+  data: StudentData;
 }
 
-interface Conduct {
-  id: string;
-  name: string;
-  rating: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
-}
-
-interface StudentData {
-  fullName: string;
-  className: string;
-  age: number;
-  gender: string;
-  schoolOpened: number;
-  timesPresent: number;
-  rollNumber?: string;
-  nextTermBegins: string;
-  subjects: Subject[];
-  conducts: Conduct[];
-  teacherRemark: string;
-  teacherName: string;
-  headRemark: string;
-  headName: string;
-  headOfSchoolName: string;
-  schoolName?: string;
-  schoolAddress?: string;
-  schoolPhone?: string;
-  schoolLogoUrl?: string;
-  photoUrl?: string;
-  teacherSignatureUrl?: string;
-  headTeacherStampUrl?: string;
-  headOfSchoolStampUrl?: string;
-}
-
-const calculateTotal = (ca: number, exam: number) => ca + exam;
-
-const getGradeInfo = (total: number) => {
-  if (total >= 90) return { grade: 'A+', remark: 'EXCEEDING' };
-  if (total >= 70) return { grade: 'A', remark: 'EXCEEDING' };
-  if (total >= 50) return { grade: 'B', remark: 'EXPECTED' };
-  if (total >= 40) return { grade: 'C', remark: 'EMERGING' };
-  return { grade: 'D', remark: 'NEEDS HELP' };
-};
-
-const calculateAverage = (subjects: Subject[]) => {
-  if (subjects.length === 0) return 0;
-  const total = subjects.reduce((sum, s) => sum + calculateTotal(s.caScore, s.examScore), 0);
-  const possible = subjects.length * 100;
-  return Math.round((total / possible) * 100);
-};
-
-const getStudentTotalScore = (subjects: Subject[]) => 
-  subjects.reduce((sum, s) => sum + calculateTotal(s.caScore, s.examScore), 0);
-
-const getTotalPossibleScore = (subjects: Subject[]) => subjects.length * 100;
-
-const sampleData: StudentData = {
-  fullName: "John Smith",
-  className: "Nursery 2",
-  age: 5,
-  gender: "Male",
-  schoolOpened: 65,
-  timesPresent: 60,
-  rollNumber: "NS2-015",
-  nextTermBegins: "Jan 8, 2026",
-  subjects: [
-    { id: '1', name: 'Communication & Language', caScore: 35, examScore: 52, category: 'Prime' },
-    { id: '2', name: 'Physical Development', caScore: 38, examScore: 55, category: 'Prime' },
-    { id: '3', name: 'Personal, Social & Emotional', caScore: 36, examScore: 50, category: 'Prime' },
-    { id: '4', name: 'Literacy', caScore: 32, examScore: 48, category: 'Specific' },
-    { id: '5', name: 'Mathematics', caScore: 30, examScore: 45, category: 'Specific' },
-    { id: '6', name: 'Understanding the World', caScore: 34, examScore: 50, category: 'Specific' },
-    { id: '7', name: 'Expressive Arts & Design', caScore: 37, examScore: 53, category: 'Specific' },
-  ],
-  conducts: [
-    { id: '1', name: 'Punctuality', rating: 'A' },
-    { id: '2', name: 'Neatness', rating: 'B' },
-    { id: '3', name: 'Honesty', rating: 'A' },
-    { id: '4', name: 'Politeness', rating: 'A' },
-  ],
-  teacherRemark: "John is a bright and enthusiastic learner who participates actively in class.",
-  teacherName: "Mrs. Johnson",
-  headRemark: "Keep up the excellent work!",
-  headName: "Mr. Davies",
-  headOfSchoolName: "Dr. Williams",
-  schoolName: "LAURASTEPHENS SCHOOL",
-  schoolAddress: "123 Education Street, Lagos",
-  schoolPhone: "123-456-7890",
-};
-
-const ReportCard: React.FC<{ data: StudentData }> = ({ data }) => {
+const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
   const studentTotal = getStudentTotalScore(data.subjects);
   const totalPossible = getTotalPossibleScore(data.subjects);
   const average = calculateAverage(data.subjects);
@@ -105,6 +16,7 @@ const ReportCard: React.FC<{ data: StudentData }> = ({ data }) => {
   const displayScore = (val: number) => val === 0 ? '-' : val;
   const timesAbsent = Math.max(0, data.schoolOpened - data.timesPresent);
 
+  // Helper to remove quotes from remarks
   const cleanRemark = (text: string) => text ? text.replace(/^["']|["']$/g, '').trim() : "No remarks provided.";
 
   const gradingScale = [
@@ -141,39 +53,49 @@ const ReportCard: React.FC<{ data: StudentData }> = ({ data }) => {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 0;
           }
           
           body {
             print-color-adjust: exact;
             -webkit-print-color-adjust: exact;
+            margin: 0;
+            padding: 0;
           }
           
           .no-print {
             display: none !important;
           }
           
+          /* Force exact positioning for the report card */
           #report-card {
-            width: 100% !important;
-            max-width: 100% !important;
-            min-height: 0 !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-width: 210mm !important;
+            max-height: 297mm !important;
             margin: 0 !important;
-            padding: 8mm !important;
+            padding: 10mm !important;
             box-shadow: none !important;
-            transform: scale(0.95);
-            transform-origin: top left;
+            background: white !important;
+            z-index: 9999;
+            page-break-after: always;
           }
         }
       `}</style>
 
+      {/* Print Button - Hidden when printing */}
       <button 
         onClick={() => window.print()}
-        className="no-print fixed top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-50"
+        className="no-print fixed top-20 right-4 md:top-4 md:right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-50 font-medium transition-all"
       >
         <Printer size={18} />
         Print Report Card
       </button>
 
+      {/* Main Report Card Container */}
       <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-[10mm] sm:p-[15mm] box-border font-sans relative text-slate-900 flex flex-col justify-between shadow-sm sm:shadow-none">
         
         <div>
@@ -478,6 +400,4 @@ const ReportCard: React.FC<{ data: StudentData }> = ({ data }) => {
   );
 };
 
-export default function App() {
-  return <ReportCard data={sampleData} />;
-}
+export default ReportCard;
