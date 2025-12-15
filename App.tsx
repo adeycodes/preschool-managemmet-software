@@ -314,7 +314,18 @@ function App() {
             <div className={`flex-1 ${showPreviewMobile ? 'block' : 'hidden'} sm:block`}>
                <div className="sticky top-24">
                   <div className="overflow-auto max-h-[calc(100vh-12rem)] rounded-xl border border-gray-200 shadow-xl bg-gray-500/10 p-4 sm:p-8">
-                    <ReportCard data={activeStudent} />
+                    {/* Combine active student data with latest app settings for display */}
+                    <ReportCard 
+                      data={{
+                        ...activeStudent,
+                        schoolName: appSettings.schoolName,
+                        schoolAddress: appSettings.schoolAddress,
+                        schoolPhone: appSettings.schoolPhone,
+                        term: appSettings.term,
+                        session: appSettings.session,
+                        nextTermBegins: appSettings.nextTermBegins
+                      }} 
+                    />
                   </div>
                </div>
             </div>
