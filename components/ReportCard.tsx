@@ -36,12 +36,12 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
         
         return (
             <tr key={s.id} className="border-b border-gray-100 last:border-0">
-                <td className="py-1 px-2 text-left text-[10px] text-gray-700 font-medium">{s.name}</td>
-                <td className="py-1 px-2 text-center text-[10px] text-gray-500">{displayScore(s.caScore)}</td>
-                <td className="py-1 px-2 text-center text-[10px] text-gray-500">{displayScore(s.examScore)}</td>
-                <td className="py-1 px-2 text-center text-[10px] font-bold text-gray-800">{total}</td>
-                <td className={`py-1 px-2 text-center text-[10px] font-bold ${gradeColor}`}>{grade}</td>
-                <td className="py-1 px-2 text-left text-[9px] text-gray-500 uppercase font-medium tracking-tight">{remark}</td>
+                <td className="py-[2px] px-2 text-left text-[9px] text-gray-700 font-medium">{s.name}</td>
+                <td className="py-[2px] px-2 text-center text-[9px] text-gray-500">{displayScore(s.caScore)}</td>
+                <td className="py-[2px] px-2 text-center text-[9px] text-gray-500">{displayScore(s.examScore)}</td>
+                <td className="py-[2px] px-2 text-center text-[9px] font-bold text-gray-800">{total}</td>
+                <td className={`py-[2px] px-2 text-center text-[9px] font-bold ${gradeColor}`}>{grade}</td>
+                <td className="py-[2px] px-2 text-left text-[8px] text-gray-500 uppercase font-medium tracking-tight">{remark}</td>
             </tr>
         );
       });
@@ -73,11 +73,11 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             width: 210mm !important;
             height: 297mm !important;
             margin: 0 !important;
-            padding: 8mm !important; /* Reduced padding for more space */
+            padding: 8mm !important;
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            overflow: hidden !important; /* Clip if absolutely necessary, but content should fit */
+            overflow: hidden !important; 
             z-index: 9999;
           }
         }
@@ -93,303 +93,300 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
       </button>
 
       {/* Main Report Card Container */}
-      <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-[8mm] box-border font-sans relative text-slate-900 flex flex-col justify-between shadow-sm sm:shadow-none">
+      <div id="report-card" className="bg-white mx-auto w-full max-w-[210mm] h-[297mm] p-[8mm] box-border font-sans relative text-slate-900 flex flex-col shadow-sm sm:shadow-none overflow-hidden">
         
-        <div>
-          {/* HEADER */}
-          <div className="flex justify-center items-center mb-4 border-b border-gray-200 pb-2">
-              <div className="flex items-center gap-4">
-                  <div className="text-red-800 flex-shrink-0">
-                       {data.schoolLogoUrl ? (
-                           <img src={data.schoolLogoUrl} className="h-16 w-auto object-contain" alt="Logo" />
-                       ) : (
-                           <School size={56} strokeWidth={1.5} color="#8B2E2E" />
-                       )}
-                  </div>
-                  <div className="text-left">
-                      <h1 className="text-2xl font-serif font-bold text-[#8B2E2E] tracking-wide mb-0.5 uppercase leading-none">
-                          {data.schoolName || 'LAURASTEPHENS SCHOOL'}
-                      </h1>
-                      <div className="text-[10px] text-gray-500 font-medium leading-tight uppercase tracking-wide mt-0.5">
-                          <p>{data.schoolAddress || 'Address Line 1'}</p>
-                          <p>Tel: {data.schoolPhone || '000-000-000'}</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
+        {/* HEADER - Compacted */}
+        <div className="flex justify-center items-center mb-2 border-b border-gray-200 pb-2 flex-shrink-0">
+            <div className="flex items-center gap-3">
+                <div className="text-red-800 flex-shrink-0">
+                      {data.schoolLogoUrl ? (
+                          <img src={data.schoolLogoUrl} className="h-14 w-auto object-contain" alt="Logo" />
+                      ) : (
+                          <School size={48} strokeWidth={1.5} color="#8B2E2E" />
+                      )}
+                </div>
+                <div className="text-left">
+                    <h1 className="text-xl font-serif font-bold text-[#8B2E2E] tracking-wide mb-0 leading-none uppercase">
+                        {data.schoolName || 'LAURASTEPHENS SCHOOL'}
+                    </h1>
+                    <div className="text-[9px] text-gray-500 font-medium leading-tight uppercase tracking-wide mt-0.5">
+                        <p>{data.schoolAddress || 'Address Line 1'}</p>
+                        <p>Tel: {data.schoolPhone || '000-000-000'}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-          {/* TITLE */}
-          <div className="flex items-center justify-center mb-4">
-              <div className="bg-[#b91c1c] text-white py-0.5 px-8 rounded-sm shadow-sm">
-                  <h2 className="text-[10px] font-bold uppercase tracking-[0.2em]">
-                      Term Report Card
-                  </h2>
-              </div>
-          </div>
+        {/* TITLE */}
+        <div className="flex items-center justify-center mb-2 flex-shrink-0">
+            <div className="bg-[#b91c1c] text-white py-0.5 px-6 rounded-sm shadow-sm">
+                <h2 className="text-[9px] font-bold uppercase tracking-[0.2em]">
+                    Term Report Card
+                </h2>
+            </div>
+        </div>
 
-          {/* BIODATA SECTION - Compressed */}
-          <div className="bg-[#F9FAFB] p-2 rounded-sm mb-4 border border-gray-100">
-              <div className="flex gap-4 items-start">
-                  
-                  {/* Photo - Left Side */}
-                  <div className="w-20 h-24 bg-white border border-gray-200 shadow-sm flex-shrink-0 p-1">
-                       <div className="w-full h-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                          {data.photoUrl ? (
-                              <img src={data.photoUrl} className="w-full h-full object-cover" alt="Student" />
-                          ) : (
-                              <span className="text-[8px] font-bold text-gray-400 uppercase leading-tight text-center">Passport<br/>Photo</span>
-                          )}
-                      </div>
-                  </div>
+        {/* BIODATA SECTION - Ultra Compact */}
+        <div className="bg-[#F9FAFB] p-2 rounded-sm mb-2 border border-gray-100 flex-shrink-0">
+            <div className="flex gap-3 items-start">
+                
+                {/* Photo */}
+                <div className="w-16 h-20 bg-white border border-gray-200 shadow-sm flex-shrink-0 p-1">
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {data.photoUrl ? (
+                            <img src={data.photoUrl} className="w-full h-full object-cover" alt="Student" />
+                        ) : (
+                            <span className="text-[7px] font-bold text-gray-400 uppercase leading-tight text-center">Student<br/>Photo</span>
+                        )}
+                    </div>
+                </div>
 
-                  {/* Info Grid - Right Side (3x3) */}
-                  <div className="flex-1 grid grid-cols-3 gap-y-2 gap-x-4 border-l border-gray-200 pl-4">
-                      {/* Column 1 */}
+                {/* Info Grid */}
+                <div className="flex-1 grid grid-cols-3 gap-y-1 gap-x-3 border-l border-gray-200 pl-3">
+                    {/* Column 1 */}
+                    <div className="border-b border-gray-100 pb-0.5">
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Student Name</p>
+                        <p className="text-[10px] font-bold text-gray-900 leading-tight truncate">{data.fullName}</p>
+                    </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Student Name</p>
-                          <p className="text-xs font-bold text-gray-900 leading-tight truncate">{data.fullName}</p>
-                      </div>
-                       <div className="border-b border-gray-100 pb-0.5">
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Class</p>
-                          <p className="text-[10px] font-bold text-gray-900">{data.className}</p>
-                      </div>
-                       <div>
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Times School Opened</p>
-                          <p className="text-[10px] font-bold text-gray-900">{data.schoolOpened}</p>
-                      </div>
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Class</p>
+                        <p className="text-[9px] font-bold text-gray-900">{data.className}</p>
+                    </div>
+                      <div>
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">School Opened</p>
+                        <p className="text-[9px] font-bold text-gray-900">{data.schoolOpened}</p>
+                    </div>
 
-                      {/* Column 2 */}
+                    {/* Column 2 */}
+                    <div className="border-b border-gray-100 pb-0.5">
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Age</p>
+                        <p className="text-[9px] font-bold text-gray-900">{data.age} Years</p>
+                    </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Age</p>
-                          <p className="text-[10px] font-bold text-gray-900">{data.age} Years</p>
-                      </div>
-                       <div className="border-b border-gray-100 pb-0.5">
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Number on Roll</p>
-                          <p className="text-[10px] font-bold text-gray-900">{data.rollNumber || '-'}</p>
-                      </div>
-                       <div>
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Times Present</p>
-                          <p className="text-[10px] font-bold text-gray-900">{data.timesPresent}</p>
-                      </div>
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">No. on Roll</p>
+                        <p className="text-[9px] font-bold text-gray-900">{data.rollNumber || '-'}</p>
+                    </div>
+                      <div>
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Times Present</p>
+                        <p className="text-[9px] font-bold text-gray-900">{data.timesPresent}</p>
+                    </div>
 
-                      {/* Column 3 */}
+                    {/* Column 3 */}
+                    <div className="border-b border-gray-100 pb-0.5">
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Sex</p>
+                        <p className="text-[9px] font-bold text-gray-900">{data.gender}</p>
+                    </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Sex</p>
-                          <p className="text-[10px] font-bold text-gray-900">{data.gender}</p>
-                      </div>
-                       <div className="border-b border-gray-100 pb-0.5">
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Next Term Begins</p>
-                          <p className="text-[10px] font-bold text-[#b91c1c]">{data.nextTermBegins}</p>
-                      </div>
-                       <div>
-                          <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Times Absent</p>
-                          <p className="text-[10px] font-bold text-gray-900">{timesAbsent}</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Next Term</p>
+                        <p className="text-[9px] font-bold text-[#b91c1c] truncate">{data.nextTermBegins}</p>
+                    </div>
+                      <div>
+                        <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mb-0">Times Absent</p>
+                        <p className="text-[9px] font-bold text-gray-900">{timesAbsent}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-          {/* ACADEMIC TABLE */}
-          <div className="mb-4">
-              <div className="flex items-center gap-2 mb-1">
-                  <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
-                  <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Academic Performance</h3>
-              </div>
-              
-              <table className="w-full border-collapse">
-                  <thead>
-                      <tr className="bg-[#0f172a] text-white">
-                          <th className="py-1 px-2 text-left text-[8px] font-bold uppercase tracking-wider w-[35%]">Subject Area</th>
-                          <th className="py-1 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[12%]">CA (40)</th>
-                          <th className="py-1 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[12%]">Exam (60)</th>
-                          <th className="py-1 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[10%]">Total</th>
-                          <th className="py-1 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[10%]">Grade</th>
-                          <th className="py-1 px-2 text-left text-[8px] font-bold uppercase tracking-wider w-[21%]">Remark</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {/* Prime Areas */}
-                      <tr className="bg-gray-50 border-b border-gray-100">
-                          <td colSpan={6} className="py-1 px-2 text-[8px] font-bold text-gray-500 uppercase tracking-wide">
-                              Prime Areas of Learning
-                          </td>
-                      </tr>
-                      {renderSubjects(data.subjects.filter(s => s.category === 'Prime'))}
+        {/* ACADEMIC TABLE */}
+        <div className="mb-2 flex-shrink-0">
+            <div className="flex items-center gap-2 mb-1">
+                <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
+                <h3 className="text-[8px] font-bold text-[#b91c1c] uppercase tracking-widest">Academic Performance</h3>
+            </div>
+            
+            <table className="w-full border-collapse">
+                <thead>
+                    <tr className="bg-[#0f172a] text-white">
+                        <th className="py-1 px-2 text-left text-[7px] font-bold uppercase tracking-wider w-[35%]">Subject Area</th>
+                        <th className="py-1 px-2 text-center text-[7px] font-bold uppercase tracking-wider w-[12%]">CA (40)</th>
+                        <th className="py-1 px-2 text-center text-[7px] font-bold uppercase tracking-wider w-[12%]">Exam (60)</th>
+                        <th className="py-1 px-2 text-center text-[7px] font-bold uppercase tracking-wider w-[10%]">Total</th>
+                        <th className="py-1 px-2 text-center text-[7px] font-bold uppercase tracking-wider w-[10%]">Grade</th>
+                        <th className="py-1 px-2 text-left text-[7px] font-bold uppercase tracking-wider w-[21%]">Remark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                        <td colSpan={6} className="py-0.5 px-2 text-[7px] font-bold text-gray-500 uppercase tracking-wide">
+                            Prime Areas of Learning
+                        </td>
+                    </tr>
+                    {renderSubjects(data.subjects.filter(s => s.category === 'Prime'))}
 
-                      {/* Specific Areas */}
-                      <tr className="bg-gray-50 border-b border-gray-100">
-                          <td colSpan={6} className="py-1 px-2 text-[8px] font-bold text-gray-500 uppercase tracking-wide">
-                              Specific Areas of Learning
-                          </td>
-                      </tr>
-                      {renderSubjects(data.subjects.filter(s => s.category === 'Specific'))}
-                  </tbody>
-              </table>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                        <td colSpan={6} className="py-0.5 px-2 text-[7px] font-bold text-gray-500 uppercase tracking-wide">
+                            Specific Areas of Learning
+                        </td>
+                    </tr>
+                    {renderSubjects(data.subjects.filter(s => s.category === 'Specific'))}
+                </tbody>
+            </table>
 
-              {/* Table Footer */}
-              <div className="flex items-center justify-end gap-6 mt-1 border-t border-gray-200 pt-1">
-                  <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Overall Performance</span>
-                  <span className="text-sm font-bold text-gray-900">{studentTotal} <span className="text-[10px] font-medium text-gray-400">/ {totalPossible}</span></span>
-                  
-                  <div className="border border-gray-200 rounded px-2 py-0.5 flex items-center gap-2 ml-4 bg-white">
-                      <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wide">Average</span>
-                      <span className="text-xs font-bold text-[#b91c1c]">{average}%</span>
-                  </div>
-              </div>
-          </div>
+            {/* Table Footer */}
+            <div className="flex items-center justify-end gap-6 mt-1 border-t border-gray-200 pt-1">
+                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Total</span>
+                <span className="text-xs font-bold text-gray-900">{studentTotal} <span className="text-[8px] font-medium text-gray-400">/ {totalPossible}</span></span>
+                
+                <div className="border border-gray-200 rounded px-2 py-0.5 flex items-center gap-2 ml-4 bg-white">
+                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wide">Average</span>
+                    <span className="text-xs font-bold text-[#b91c1c]">{average}%</span>
+                </div>
+            </div>
+        </div>
 
-          {/* CONDUCT & GRADING */}
-          <div className="grid grid-cols-2 gap-4 mb-2 items-start">
-              
-              {/* Conduct */}
-              <div>
-                  <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
-                      <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Conduct Assessment</h3>
-                  </div>
-                  <div className="border-t border-gray-200">
-                      <div className="grid grid-cols-[1fr_repeat(6,1.2rem)] bg-gray-50 border-b border-gray-200">
-                          <div className="py-0.5 px-2 text-[8px] font-bold text-gray-500 uppercase">Trait</div>
-                          {['A','B','C','D','E','F'].map(l => (
-                              <div key={l} className="py-0.5 text-center text-[8px] font-bold text-gray-500 border-l border-gray-200">{l}</div>
-                          ))}
-                      </div>
-                      {data.conducts.map((c) => (
-                          <div key={c.id} className="grid grid-cols-[1fr_repeat(6,1.2rem)] border-b border-gray-100 last:border-0 items-center">
-                              <div className="py-0.5 px-2 text-[8px] font-medium text-gray-700">{c.name}</div>
-                               {['A','B','C','D','E','F'].map(l => (
-                                  <div key={l} className="py-0.5 border-l border-gray-100 flex items-center justify-center h-full">
-                                      {c.rating === l && <Check size={10} className="text-green-600" strokeWidth={3} />}
-                                  </div>
-                              ))}
-                          </div>
-                      ))}
-                  </div>
-              </div>
+        {/* CONDUCT & GRADING */}
+        <div className="grid grid-cols-2 gap-3 mb-2 items-start flex-shrink-0">
+            {/* Conduct */}
+            <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                    <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
+                    <h3 className="text-[8px] font-bold text-[#b91c1c] uppercase tracking-widest">Conduct</h3>
+                </div>
+                <div className="border-t border-gray-200">
+                    <div className="grid grid-cols-[1fr_repeat(6,1rem)] bg-gray-50 border-b border-gray-200">
+                        <div className="py-0.5 px-2 text-[7px] font-bold text-gray-500 uppercase">Trait</div>
+                        {['A','B','C','D','E','F'].map(l => (
+                            <div key={l} className="py-0.5 text-center text-[7px] font-bold text-gray-500 border-l border-gray-200">{l}</div>
+                        ))}
+                    </div>
+                    {data.conducts.map((c) => (
+                        <div key={c.id} className="grid grid-cols-[1fr_repeat(6,1rem)] border-b border-gray-100 last:border-0 items-center">
+                            <div className="py-0.5 px-2 text-[8px] font-medium text-gray-700 truncate">{c.name}</div>
+                              {['A','B','C','D','E','F'].map(l => (
+                                <div key={l} className="py-0.5 border-l border-gray-100 flex items-center justify-center h-full">
+                                    {c.rating === l && <Check size={8} className="text-green-600" strokeWidth={3} />}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-              {/* Grading Key */}
-              <div>
-                  <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
-                      <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Grading Key</h3>
-                  </div>
-                  <div className="border border-gray-200 rounded-sm overflow-hidden">
-                      <table className="w-full">
-                          <thead className="bg-gray-50">
-                              <tr>
-                                  <th className="py-0.5 px-2 text-left text-[8px] font-bold text-gray-500 uppercase">Grade</th>
-                                  <th className="py-0.5 px-2 text-center text-[8px] font-bold text-gray-500 uppercase">Score</th>
-                                  <th className="py-0.5 px-2 text-left text-[8px] font-bold text-gray-500 uppercase">Remark</th>
-                              </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100">
-                              {gradingScale.map((g) => (
-                                  <tr key={g.grade}>
-                                      <td className={`py-0.5 px-2 text-[9px] font-bold ${g.grade.startsWith('A') || g.grade === 'D' ? 'text-[#b91c1c]' : 'text-gray-800'}`}>{g.grade}</td>
-                                      <td className="py-0.5 px-2 text-center text-[8px] text-gray-600">{g.range}</td>
-                                      <td className="py-0.5 px-2 text-[8px] font-bold text-gray-700 uppercase">{g.remark}</td>
-                                  </tr>
-                              ))}
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
+            {/* Grading Key */}
+            <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                    <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
+                    <h3 className="text-[8px] font-bold text-[#b91c1c] uppercase tracking-widest">Grading</h3>
+                </div>
+                <div className="border border-gray-200 rounded-sm overflow-hidden">
+                    <table className="w-full">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="py-0.5 px-2 text-left text-[7px] font-bold text-gray-500 uppercase">Grd</th>
+                                <th className="py-0.5 px-2 text-center text-[7px] font-bold text-gray-500 uppercase">Score</th>
+                                <th className="py-0.5 px-2 text-left text-[7px] font-bold text-gray-500 uppercase">Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {gradingScale.map((g) => (
+                                <tr key={g.grade}>
+                                    <td className={`py-0.5 px-2 text-[8px] font-bold ${g.grade.startsWith('A') || g.grade === 'D' ? 'text-[#b91c1c]' : 'text-gray-800'}`}>{g.grade}</td>
+                                    <td className="py-0.5 px-2 text-center text-[7px] text-gray-600">{g.range}</td>
+                                    <td className="py-0.5 px-2 text-[7px] font-bold text-gray-700 uppercase">{g.remark}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-          {/* REMARKS & SIGNATURES - COMPACT */}
-          <div className="mt-auto">
-              {/* Class Teacher Section */}
-              <div className="mb-2">
-                  <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1 h-1 rounded-full bg-gray-800"></div>
-                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-widest">Class Teacher's Remark</h3>
-                  </div>
-                  <div className="flex gap-4 items-end border border-gray-200 rounded-sm p-2 bg-[#F9FAFB]">
-                      <div className="flex-1">
-                          <p className="text-[10px] text-gray-700 italic leading-snug min-h-[30px]">
-                              {cleanRemark(data.teacherRemark)}
-                          </p>
-                      </div>
-                      
-                      {/* Teacher Signature Block */}
-                      <div className="text-right min-w-[120px] flex flex-col items-end relative">
-                          <div className="h-8 mb-0.5 w-full flex items-end justify-end relative">
-                               {/* Signature Image embedded exactly above name */}
-                              {data.teacherSignatureUrl ? (
-                                  <img src={data.teacherSignatureUrl} className="max-h-10 w-auto object-contain absolute bottom-0 right-0" alt="Signature" />
-                              ) : null}
-                          </div>
-                          <div className="w-full border-t border-gray-300"></div>
-                          <p className="font-handwriting text-xs text-blue-900 leading-none mt-0.5">{data.teacherName}</p>
-                          <p className="text-[7px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
-                      </div>
-                  </div>
-              </div>
+        {/* REMARKS & SIGNATURES - EXPANDED WRAPPING WITH COMPACT SPACING */}
+        <div className="mt-auto flex-grow flex flex-col justify-end gap-2">
+            
+            {/* Class Teacher Section */}
+            <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                    <div className="w-1 h-1 rounded-full bg-gray-800"></div>
+                    <h3 className="text-[8px] font-bold text-gray-800 uppercase tracking-widest">Class Teacher's Remark</h3>
+                </div>
+                <div className="flex gap-4 border border-gray-200 rounded-sm p-2 bg-[#F9FAFB] min-h-[50px] items-stretch">
+                    <div className="flex-1 flex items-center">
+                        <p className="text-[9px] text-gray-700 italic leading-snug whitespace-pre-wrap break-words w-full">
+                            {cleanRemark(data.teacherRemark)}
+                        </p>
+                    </div>
+                    
+                    {/* Teacher Signature Block */}
+                    <div className="text-right min-w-[120px] flex flex-col justify-end relative pt-4">
+                        <div className="h-8 mb-0.5 w-full flex items-end justify-end relative">
+                            {data.teacherSignatureUrl ? (
+                                <img src={data.teacherSignatureUrl} className="max-h-10 w-auto object-contain absolute bottom-0 right-0" alt="Signature" />
+                            ) : null}
+                        </div>
+                        <div className="w-full border-t border-gray-300"></div>
+                        <p className="font-handwriting text-xs text-blue-900 leading-none mt-0.5 truncate">{data.teacherName}</p>
+                        <p className="text-[6px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
+                    </div>
+                </div>
+            </div>
 
-              {/* Heads Section */}
-              <div className="grid grid-cols-2 gap-4">
-                  
-                  {/* Head of Preschool */}
-                  <div>
-                      <div className="flex items-center gap-2 mb-1">
-                          <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
-                          <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of Preschool</h3>
-                      </div>
-                      <div className="border border-gray-200 rounded-sm p-2 h-full flex flex-col justify-between relative min-h-[60px]">
-                          <p className="text-[10px] text-gray-700 italic leading-snug mb-4 z-10 relative">
-                              {cleanRemark(data.headRemark)}
-                          </p>
-                          
-                          <div className="flex items-end justify-between mt-auto">
-                              <div className="z-20 relative">
-                                  <p className="font-handwriting text-sm text-blue-900 leading-none mb-0.5">{data.headName}</p>
-                                  <div className="border-t border-gray-300 w-24"></div>
-                                  <p className="text-[7px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
-                              </div>
-                              
-                              {/* Head of Preschool Stamp */}
-                              {data.headTeacherStampUrl ? (
-                                  <div className="absolute bottom-1 right-1 opacity-90 z-10 pointer-events-none">
-                                      <img src={data.headTeacherStampUrl} className="w-14 h-14 object-contain -rotate-12" alt="Stamp" />
-                                  </div>
-                              ) : (
-                                  <div className="absolute bottom-1 right-1 w-12 h-12 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
-                                      <span className="text-[6px] text-gray-300 font-bold -rotate-12">STAMP</span>
-                                  </div>
-                              )}
-                          </div>
-                      </div>
-                  </div>
+            {/* Heads Section */}
+            <div className="grid grid-cols-2 gap-3">
+                
+                {/* Head of Preschool */}
+                <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
+                        <h3 className="text-[8px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of Preschool</h3>
+                    </div>
+                    <div className="border border-gray-200 rounded-sm p-2 h-full flex flex-col justify-between relative min-h-[70px]">
+                        <div className="mb-2">
+                             <p className="text-[9px] text-gray-700 italic leading-snug whitespace-pre-wrap break-words">
+                                {cleanRemark(data.headRemark)}
+                            </p>
+                        </div>
+                        
+                        <div className="flex items-end justify-between mt-auto">
+                            <div className="z-20 relative flex-1 mr-2">
+                                <p className="font-handwriting text-xs text-blue-900 leading-none mb-0.5 truncate">{data.headName}</p>
+                                <div className="border-t border-gray-300 w-full"></div>
+                                <p className="text-[6px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
+                            </div>
+                            
+                            {/* Head of Preschool Stamp */}
+                            {data.headTeacherStampUrl ? (
+                                <div className="opacity-90 z-10 pointer-events-none flex-shrink-0">
+                                    <img src={data.headTeacherStampUrl} className="w-10 h-10 object-contain -rotate-12" alt="Stamp" />
+                                </div>
+                            ) : (
+                                <div className="w-10 h-10 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40 flex-shrink-0">
+                                    <span className="text-[5px] text-gray-300 font-bold -rotate-12">STAMP</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
 
-                  {/* Head of School */}
-                  <div>
-                      <div className="flex items-center gap-2 mb-1">
-                          <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
-                          <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of School</h3>
-                      </div>
-                      <div className="border border-gray-200 rounded-sm p-2 h-full flex flex-col justify-end relative min-h-[60px]">
-                           {/* Head of School Stamp */}
-                           {data.headOfSchoolStampUrl ? (
-                                  <div className="absolute bottom-4 right-1 opacity-90 z-10 pointer-events-none">
-                                      <img src={data.headOfSchoolStampUrl} className="w-14 h-14 object-contain -rotate-12" alt="Stamp" />
-                                  </div>
-                              ) : (
-                                  <div className="absolute bottom-4 right-1 w-12 h-12 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
-                                      <span className="text-[6px] text-gray-300 font-bold -rotate-12">STAMP</span>
-                                  </div>
-                              )}
+                {/* Head of School */}
+                <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <div className="w-1 h-1 rounded-full bg-[#b91c1c]"></div>
+                        <h3 className="text-[8px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of School</h3>
+                    </div>
+                    <div className="border border-gray-200 rounded-sm p-2 h-full flex flex-col justify-end relative min-h-[70px]">
+                        {/* Head of School Stamp */}
+                        {data.headOfSchoolStampUrl ? (
+                                <div className="absolute bottom-2 right-2 opacity-90 z-10 pointer-events-none">
+                                    <img src={data.headOfSchoolStampUrl} className="w-10 h-10 object-contain -rotate-12" alt="Stamp" />
+                                </div>
+                            ) : (
+                                <div className="absolute bottom-2 right-2 w-10 h-10 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
+                                    <span className="text-[5px] text-gray-300 font-bold -rotate-12">STAMP</span>
+                                </div>
+                            )}
 
-                          <div className="flex items-end justify-between mt-6">
-                              <div className="z-20 relative">
-                                  <p className="font-handwriting text-sm text-blue-900 leading-none mb-0.5">{data.headOfSchoolName}</p>
-                                  <div className="border-t border-gray-300 w-24"></div>
-                                  <p className="text-[7px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+                        <div className="flex items-end justify-between mt-4">
+                            <div className="z-20 relative w-2/3">
+                                <p className="font-handwriting text-xs text-blue-900 leading-none mb-0.5 truncate">{data.headOfSchoolName}</p>
+                                <div className="border-t border-gray-300 w-full"></div>
+                                <p className="text-[6px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
     </>

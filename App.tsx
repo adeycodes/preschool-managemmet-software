@@ -323,7 +323,11 @@ function App() {
                         schoolPhone: appSettings.schoolPhone,
                         term: appSettings.term,
                         session: appSettings.session,
-                        nextTermBegins: appSettings.nextTermBegins
+                        nextTermBegins: appSettings.nextTermBegins,
+                        // Ensure stamps fall back to settings if not present on student
+                        teacherSignatureUrl: activeStudent.teacherSignatureUrl || appSettings.defaultTeacherSignatureUrl,
+                        headTeacherStampUrl: activeStudent.headTeacherStampUrl || appSettings.defaultHeadTeacherStampUrl,
+                        headOfSchoolStampUrl: activeStudent.headOfSchoolStampUrl || appSettings.defaultHeadOfSchoolStampUrl,
                       }} 
                     />
                   </div>
