@@ -11,7 +11,7 @@ import Sidebar from './components/Sidebar';
 import { StudentData, INITIAL_SUBJECTS, INITIAL_CONDUCTS, User, AppSettings } from './types';
 import { generateRemarks } from './services/geminiService';
 import { generateExcel } from './services/excelService';
-import { authService } from './services/authService';
+import { authService, supabase } from './services/authService';
 
 // Extend window for html2pdf
 declare global {
@@ -54,6 +54,12 @@ const createInitialStudent = (settings: AppSettings): StudentData => ({
   teacherName: settings.defaultTeacherName,
   headName: settings.defaultHeadName,
   headOfSchoolName: settings.defaultHeadOfSchoolName,
+  
+  // Inherit images
+  teacherSignatureUrl: settings.defaultTeacherSignatureUrl,
+  headTeacherStampUrl: settings.defaultHeadTeacherStampUrl,
+  headOfSchoolStampUrl: settings.defaultHeadOfSchoolStampUrl,
+
   term: settings.term,
   session: settings.session,
   nextTermBegins: settings.nextTermBegins
@@ -79,37 +85,60 @@ function App() {
 
   // --- Effects ---
 
-  // Auth Check
+  // 1. Auth & Session Check
   useEffect(() => {
+    // Check local storage first
     const user = authService.getCurrentUser();
     if (user) setCurrentUser(user);
+
+    // Listen for Supabase auth changes (e.g. email confirmed redirect)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+         // Map session to our User type
+         const mappedUser: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.name || 'Teacher',
+            username: session.user.user_metadata?.username || '',
+            role: session.user.user_metadata?.role || 'teacher'
+         };
+         localStorage.setItem('kinderReport_currentUser', JSON.stringify(mappedUser));
+         setCurrentUser(mappedUser);
+      } else if (event === 'SIGNED_OUT') {
+         setCurrentUser(null);
+         localStorage.removeItem('kinderReport_currentUser');
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  // Load Settings
+  // 2. Load User-Specific Data
   useEffect(() => {
-    const savedSettings = localStorage.getItem('kinderReport_settings');
+    if (!currentUser) return;
+
+    // Load Settings specific to this user
+    const settingsKey = `kinderReport_settings_${currentUser.id}`;
+    const savedSettings = localStorage.getItem(settingsKey);
     if (savedSettings) {
       try {
         setAppSettings(JSON.parse(savedSettings));
-      } catch (e) {}
+      } catch (e) { console.error("Error loading settings", e); }
+    } else {
+        setAppSettings(DEFAULT_SETTINGS); // Reset to defaults if no user settings found
     }
-  }, []);
 
-  // Save Settings
-  useEffect(() => {
-    localStorage.setItem('kinderReport_settings', JSON.stringify(appSettings));
-  }, [appSettings]);
-
-  // Load Roster
-  useEffect(() => {
-    const savedRoster = localStorage.getItem('kinderReport_roster');
+    // Load Roster specific to this user
+    const rosterKey = `kinderReport_roster_${currentUser.id}`;
+    const savedRoster = localStorage.getItem(rosterKey);
     if (savedRoster) {
       try {
         const parsed = JSON.parse(savedRoster);
         // Hydration fix for schema updates
         const hydratedStudents = parsed.map((s: any) => ({
              ...s,
-             // ensure school info exists if missing from old data
              schoolName: s.schoolName || DEFAULT_SETTINGS.schoolName,
              schoolAddress: s.schoolAddress || DEFAULT_SETTINGS.schoolAddress,
              schoolPhone: s.schoolPhone || DEFAULT_SETTINGS.schoolPhone,
@@ -126,15 +155,23 @@ function App() {
       } catch (e) {
         console.error("Failed to load saved roster", e);
       }
+    } else {
+        setStudents([]); // Clear students if switching to a new user with no data
     }
-  }, []);
+  }, [currentUser]);
 
-  // Save Roster
+  // 3. Save User-Specific Data
   useEffect(() => {
-    if (students.length > 0) {
-        localStorage.setItem('kinderReport_roster', JSON.stringify(students));
-    }
-  }, [students]);
+    if (!currentUser) return;
+    const settingsKey = `kinderReport_settings_${currentUser.id}`;
+    localStorage.setItem(settingsKey, JSON.stringify(appSettings));
+  }, [appSettings, currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const rosterKey = `kinderReport_roster_${currentUser.id}`;
+    localStorage.setItem(rosterKey, JSON.stringify(students));
+  }, [students, currentUser]);
 
   // --- Handlers ---
 
@@ -151,6 +188,10 @@ function App() {
         const last = students[students.length - 1];
         newStudent.className = last.className;
         newStudent.schoolLogoUrl = last.schoolLogoUrl;
+        // Also inherit stamps if they exist on previous student to maintain consistency
+        newStudent.teacherSignatureUrl = last.teacherSignatureUrl || newStudent.teacherSignatureUrl;
+        newStudent.headTeacherStampUrl = last.headTeacherStampUrl || newStudent.headTeacherStampUrl;
+        newStudent.headOfSchoolStampUrl = last.headOfSchoolStampUrl || newStudent.headOfSchoolStampUrl;
     }
     setStudents(prev => [...prev, newStudent]);
     setCurrentStudentId(newStudent.id);
@@ -205,6 +246,7 @@ function App() {
   const handleLogout = () => {
     authService.logout();
     setCurrentUser(null);
+    setStudents([]); // Clear sensitive data from state on logout
   };
 
   // --- Render ---

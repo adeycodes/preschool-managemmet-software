@@ -31,6 +31,10 @@ export interface AppSettings {
   defaultTeacherName: string;
   defaultHeadName: string;
   defaultHeadOfSchoolName: string;
+  // Images
+  defaultTeacherSignatureUrl?: string | null;
+  defaultHeadTeacherStampUrl?: string | null;
+  defaultHeadOfSchoolStampUrl?: string | null;
 }
 
 export interface StudentData {
@@ -66,6 +70,11 @@ export interface StudentData {
   teacherName: string;
   headName: string;
   headOfSchoolName: string;
+  
+  // Signatures & Stamps
+  teacherSignatureUrl?: string | null;
+  headTeacherStampUrl?: string | null;
+  headOfSchoolStampUrl?: string | null;
   
   // Meta
   term: string;

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AppSettings } from '../types';
-import { Save } from 'lucide-react';
+import { Save, Upload, Trash2 } from 'lucide-react';
 
 interface SettingsProps {
   settings: AppSettings;
@@ -21,6 +21,21 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
 
   const handleChange = (field: keyof AppSettings, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileUpload = (field: keyof AppSettings) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, [field]: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = (field: keyof AppSettings) => {
+      setFormData(prev => ({ ...prev, [field]: null }));
   };
 
   return (
@@ -95,39 +110,92 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
               </div>
             </div>
 
-            {/* Signatures */}
+            {/* Signatures & Stamps */}
             <div className="space-y-4 md:col-span-2">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Default Signatories</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Default Class Teacher</label>
-                  <input
-                    type="text"
-                    value={formData.defaultTeacherName}
-                    onChange={(e) => handleChange('defaultTeacherName', e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
-                  />
-                </div>
-                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Default Head of Preschool</label>
-                  <input
-                    type="text"
-                    value={formData.defaultHeadName}
-                    onChange={(e) => handleChange('defaultHeadName', e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Default Head of School</label>
-                  <input
-                    type="text"
-                    value={formData.defaultHeadOfSchoolName}
-                    onChange={(e) => handleChange('defaultHeadOfSchoolName', e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
-                  />
-                </div>
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Default Signatures & Stamps</h3>
+              <p className="text-xs text-gray-500 mb-4">Upload these images to have them automatically applied to all new students.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {/* Teacher Signature */}
+                 <div className="space-y-2">
+                    <label className="block text-xs font-bold text-gray-700 uppercase">Class Teacher Signature</label>
+                    <input
+                        type="text"
+                        value={formData.defaultTeacherName}
+                        onChange={(e) => handleChange('defaultTeacherName', e.target.value)}
+                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm mb-2"
+                        placeholder="Default Teacher Name"
+                    />
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center min-h-[120px] relative bg-gray-50">
+                        {formData.defaultTeacherSignatureUrl ? (
+                            <>
+                                <img src={formData.defaultTeacherSignatureUrl} alt="Signature" className="max-h-20 object-contain mb-2" />
+                                <button type="button" onClick={() => clearImage('defaultTeacherSignatureUrl')} className="absolute top-2 right-2 p-1 bg-white rounded-full text-red-600 hover:bg-red-50"><Trash2 size={14}/></button>
+                            </>
+                        ) : (
+                            <label className="cursor-pointer text-center">
+                                <Upload size={24} className="mx-auto text-gray-400 mb-1" />
+                                <span className="text-xs text-blue-600 font-medium">Upload Image</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload('defaultTeacherSignatureUrl')} />
+                            </label>
+                        )}
+                    </div>
+                 </div>
+
+                 {/* Head of Preschool Stamp */}
+                 <div className="space-y-2">
+                    <label className="block text-xs font-bold text-gray-700 uppercase">Head of Preschool Stamp</label>
+                    <input
+                        type="text"
+                        value={formData.defaultHeadName}
+                        onChange={(e) => handleChange('defaultHeadName', e.target.value)}
+                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm mb-2"
+                        placeholder="Head Name"
+                    />
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center min-h-[120px] relative bg-gray-50">
+                        {formData.defaultHeadTeacherStampUrl ? (
+                            <>
+                                <img src={formData.defaultHeadTeacherStampUrl} alt="Stamp" className="max-h-20 object-contain mb-2" />
+                                <button type="button" onClick={() => clearImage('defaultHeadTeacherStampUrl')} className="absolute top-2 right-2 p-1 bg-white rounded-full text-red-600 hover:bg-red-50"><Trash2 size={14}/></button>
+                            </>
+                        ) : (
+                            <label className="cursor-pointer text-center">
+                                <Upload size={24} className="mx-auto text-gray-400 mb-1" />
+                                <span className="text-xs text-blue-600 font-medium">Upload Stamp</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload('defaultHeadTeacherStampUrl')} />
+                            </label>
+                        )}
+                    </div>
+                 </div>
+
+                 {/* Head of School Stamp */}
+                 <div className="space-y-2">
+                    <label className="block text-xs font-bold text-gray-700 uppercase">Head of School Stamp</label>
+                    <input
+                        type="text"
+                        value={formData.defaultHeadOfSchoolName}
+                        onChange={(e) => handleChange('defaultHeadOfSchoolName', e.target.value)}
+                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm mb-2"
+                        placeholder="Head of School Name"
+                    />
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center min-h-[120px] relative bg-gray-50">
+                        {formData.defaultHeadOfSchoolStampUrl ? (
+                            <>
+                                <img src={formData.defaultHeadOfSchoolStampUrl} alt="Stamp" className="max-h-20 object-contain mb-2" />
+                                <button type="button" onClick={() => clearImage('defaultHeadOfSchoolStampUrl')} className="absolute top-2 right-2 p-1 bg-white rounded-full text-red-600 hover:bg-red-50"><Trash2 size={14}/></button>
+                            </>
+                        ) : (
+                            <label className="cursor-pointer text-center">
+                                <Upload size={24} className="mx-auto text-gray-400 mb-1" />
+                                <span className="text-xs text-blue-600 font-medium">Upload Stamp</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload('defaultHeadOfSchoolStampUrl')} />
+                            </label>
+                        )}
+                    </div>
+                 </div>
               </div>
             </div>
+
           </div>
 
           <div className="pt-4 border-t flex items-center justify-between">

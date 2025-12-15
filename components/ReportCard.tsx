@@ -14,6 +14,10 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
   const average = calculateAverage(data.subjects);
   
   const displayScore = (val: number) => val === 0 ? '-' : val;
+  const timesAbsent = Math.max(0, data.schoolOpened - data.timesPresent);
+
+  // Helper to remove quotes from remarks
+  const cleanRemark = (text: string) => text ? text.replace(/^["']|["']$/g, '').trim() : "No remarks provided.";
 
   const gradingScale = [
       { grade: 'A+', range: '90-100', remark: 'EXCEEDING' },
@@ -78,7 +82,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             </div>
         </div>
 
-        {/* BIODATA SECTION */}
+        {/* BIODATA SECTION - 3x3 Grid Layout */}
         <div className="bg-[#F9FAFB] p-4 rounded-sm mb-6 border border-gray-100">
             <div className="flex gap-6 items-start">
                 
@@ -93,36 +97,48 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                     </div>
                 </div>
 
-                {/* Info Grid - Right Side */}
-                <div className="flex-1 grid grid-cols-3 gap-y-4 gap-x-6">
-                    {/* Row 1 */}
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Student Name</p>
-                        <p className="text-sm font-bold text-gray-900 leading-tight">{data.fullName}</p>
+                {/* Info Grid - Right Side (3x3) */}
+                <div className="flex-1 grid grid-cols-3 gap-y-4 gap-x-6 border-l border-gray-200 pl-6">
+                    {/* Column 1 */}
+                    <div className="border-b border-gray-100 pb-1">
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Student Name</p>
+                        <p className="text-sm font-bold text-gray-900 leading-tight truncate">{data.fullName}</p>
                     </div>
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Class</p>
+                     <div className="border-b border-gray-100 pb-1">
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Class</p>
                         <p className="text-xs font-bold text-gray-900">{data.className}</p>
                     </div>
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Session</p>
-                        <p className="text-xs font-bold text-gray-900">{data.term} • {data.session}</p>
+                     <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Times School Opened</p>
+                        <p className="text-xs font-bold text-gray-900">{data.schoolOpened}</p>
                     </div>
 
-                    {/* Row 2 */}
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Attendance</p>
-                        <p className="text-xs font-bold text-gray-900">
-                            {data.timesPresent} <span className="font-normal text-gray-500">of</span> {data.schoolOpened} <span className="text-[9px] text-gray-400">DAYS</span>
-                        </p>
+                    {/* Column 2 */}
+                    <div className="border-b border-gray-100 pb-1">
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Age</p>
+                        <p className="text-xs font-bold text-gray-900">{data.age} Years</p>
                     </div>
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Details</p>
-                        <p className="text-xs font-bold text-gray-900">{data.age} Yrs • {data.gender}</p>
+                     <div className="border-b border-gray-100 pb-1">
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Number on Roll</p>
+                        <p className="text-xs font-bold text-gray-900">{data.rollNumber || '-'}</p>
                     </div>
-                    <div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">Next Term</p>
+                     <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Times Present</p>
+                        <p className="text-xs font-bold text-gray-900">{data.timesPresent}</p>
+                    </div>
+
+                    {/* Column 3 */}
+                    <div className="border-b border-gray-100 pb-1">
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Sex</p>
+                        <p className="text-xs font-bold text-gray-900">{data.gender}</p>
+                    </div>
+                     <div className="border-b border-gray-100 pb-1">
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Next Term Begins</p>
                         <p className="text-xs font-bold text-[#b91c1c]">{data.nextTermBegins}</p>
+                    </div>
+                     <div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Times Absent</p>
+                        <p className="text-xs font-bold text-gray-900">{timesAbsent}</p>
                     </div>
                 </div>
             </div>
@@ -246,13 +262,21 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                 <div className="flex gap-4 items-end border border-gray-200 rounded-sm p-3 bg-[#F9FAFB]">
                     <div className="flex-1">
                         <p className="text-xs text-gray-700 italic leading-relaxed min-h-[40px]">
-                            "{data.teacherRemark || "No remarks provided."}"
+                            {cleanRemark(data.teacherRemark)}
                         </p>
                     </div>
-                    <div className="text-right min-w-[150px]">
-                        <p className="font-handwriting text-lg text-blue-900 leading-none mb-1">{data.teacherName}</p>
-                        <div className="border-t border-gray-300 w-full"></div>
-                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Name & Signature</p>
+                    
+                    {/* Teacher Signature Block */}
+                    <div className="text-right min-w-[150px] flex flex-col items-end relative">
+                        <div className="h-10 mb-1 w-full flex items-end justify-end relative">
+                             {/* Signature Image embedded exactly above name */}
+                            {data.teacherSignatureUrl ? (
+                                <img src={data.teacherSignatureUrl} className="max-h-12 w-auto object-contain absolute bottom-0 right-0" alt="Signature" />
+                            ) : null}
+                        </div>
+                        <div className="w-full border-t border-gray-300"></div>
+                        <p className="font-handwriting text-sm text-blue-900 leading-none mt-1">{data.teacherName}</p>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Name & Signature</p>
                     </div>
                 </div>
             </div>
@@ -266,22 +290,28 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                         <div className="w-1.5 h-1.5 rounded-full bg-[#b91c1c]"></div>
                         <h3 className="text-[10px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of Preschool</h3>
                     </div>
-                    <div className="border border-gray-200 rounded-sm p-3 h-full flex flex-col justify-between relative">
-                        <p className="text-xs text-gray-700 italic leading-relaxed mb-6 min-h-[40px] z-10 relative">
-                            "{data.headRemark || "No remarks provided."}"
+                    <div className="border border-gray-200 rounded-sm p-3 h-full flex flex-col justify-between relative min-h-[100px]">
+                        <p className="text-xs text-gray-700 italic leading-relaxed mb-6 z-10 relative">
+                            {cleanRemark(data.headRemark)}
                         </p>
                         
-                        <div className="flex items-end justify-between mt-2">
-                            <div className="z-10 relative">
-                                <p className="font-handwriting text-lg text-blue-900 leading-none mb-1">{data.headName}</p>
+                        <div className="flex items-end justify-between mt-auto">
+                            <div className="z-20 relative">
+                                <p className="font-handwriting text-md text-blue-900 leading-none mb-1">{data.headName}</p>
                                 <div className="border-t border-gray-300 w-32"></div>
                                 <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Name & Signature</p>
                             </div>
                             
-                            {/* Stamp Placeholder */}
-                            <div className="absolute bottom-2 right-2 w-16 h-16 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
-                                <span className="text-[8px] text-gray-300 font-bold -rotate-12">STAMP</span>
-                            </div>
+                            {/* Head of Preschool Stamp */}
+                            {data.headTeacherStampUrl ? (
+                                <div className="absolute bottom-2 right-2 opacity-90 z-10 pointer-events-none">
+                                    <img src={data.headTeacherStampUrl} className="w-20 h-20 object-contain -rotate-12" alt="Stamp" />
+                                </div>
+                            ) : (
+                                <div className="absolute bottom-2 right-2 w-16 h-16 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
+                                    <span className="text-[8px] text-gray-300 font-bold -rotate-12">STAMP</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -292,17 +322,23 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                         <div className="w-1.5 h-1.5 rounded-full bg-[#b91c1c]"></div>
                         <h3 className="text-[10px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of School</h3>
                     </div>
-                    <div className="border border-gray-200 rounded-sm p-3 h-full flex flex-col justify-end relative">
+                    <div className="border border-gray-200 rounded-sm p-3 h-full flex flex-col justify-end relative min-h-[100px]">
+                         {/* Head of School Stamp */}
+                         {data.headOfSchoolStampUrl ? (
+                                <div className="absolute bottom-6 right-2 opacity-90 z-10 pointer-events-none">
+                                    <img src={data.headOfSchoolStampUrl} className="w-20 h-20 object-contain -rotate-12" alt="Stamp" />
+                                </div>
+                            ) : (
+                                <div className="absolute bottom-6 right-2 w-16 h-16 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
+                                    <span className="text-[8px] text-gray-300 font-bold -rotate-12">STAMP</span>
+                                </div>
+                            )}
+
                         <div className="flex items-end justify-between mt-8">
-                            <div className="z-10 relative">
-                                <p className="font-handwriting text-lg text-blue-900 leading-none mb-1">{data.headOfSchoolName}</p>
+                            <div className="z-20 relative">
+                                <p className="font-handwriting text-md text-blue-900 leading-none mb-1">{data.headOfSchoolName}</p>
                                 <div className="border-t border-gray-300 w-32"></div>
                                 <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Name & Signature</p>
-                            </div>
-                            
-                            {/* Stamp Placeholder */}
-                            <div className="absolute bottom-2 right-2 w-16 h-16 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center opacity-40">
-                                <span className="text-[8px] text-gray-300 font-bold -rotate-12">STAMP</span>
                             </div>
                         </div>
                     </div>

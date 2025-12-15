@@ -1,7 +1,7 @@
 
 import React, { ChangeEvent, useState } from 'react';
 import { StudentData, Subject, Conduct } from '../types';
-import { Upload, Wand2, Calculator, Sparkles, School, User, BookOpen, Activity, MessageSquare, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
+import { Upload, Wand2, Calculator, Sparkles, School, User, BookOpen, Activity, MessageSquare, ChevronRight, ChevronLeft, Calendar, Trash2 } from 'lucide-react';
 import { calculateTotal, getGradeInfo } from '../utils';
 
 interface InputFormProps {
@@ -78,6 +78,17 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
     }
   };
 
+  const handleImageUpload = (field: keyof StudentData) => (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleInputChange(field, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const appendRemark = (type: 'teacher' | 'head', text: string) => {
     const field = type === 'teacher' ? 'teacherRemark' : 'headRemark';
     const current = data[field];
@@ -89,7 +100,7 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
     { id: 'profile', label: 'Student Info', icon: User },
     { id: 'academic', label: 'Academics', icon: BookOpen },
     { id: 'conduct', label: 'Conduct', icon: Activity },
-    { id: 'remarks', label: 'Remarks', icon: MessageSquare },
+    { id: 'remarks', label: 'Remarks & Signatures', icon: MessageSquare },
   ];
 
   const inputClasses = "w-full p-2.5 border border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-red-500 outline-none transition font-medium";
@@ -414,17 +425,33 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
               <textarea 
                 value={data.teacherRemark}
                 onChange={(e) => handleInputChange('teacherRemark', e.target.value)}
-                className={`${inputClasses} h-24 resize-none leading-relaxed`}
+                className={`${inputClasses} h-24 resize-none leading-relaxed mb-4`}
                 placeholder="Write a comment about the student's progress..."
               ></textarea>
-              <div className="mt-4">
-                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Teacher's Name</label>
-                <input 
-                  type="text"
-                  value={data.teacherName}
-                  onChange={(e) => handleInputChange('teacherName', e.target.value)}
-                  className={inputClasses}
-                />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Teacher's Name</label>
+                    <input 
+                      type="text"
+                      value={data.teacherName}
+                      onChange={(e) => handleInputChange('teacherName', e.target.value)}
+                      className={inputClasses}
+                    />
+                  </div>
+                  {/* Teacher Signature Upload */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Teacher's Signature</label>
+                     <div className="flex items-center gap-3">
+                        {data.teacherSignatureUrl && (
+                             <img src={data.teacherSignatureUrl} className="h-10 w-auto border border-gray-200 p-1 rounded bg-gray-50" alt="Sig" />
+                        )}
+                        <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1">
+                            <Upload size={14} /> Upload
+                            <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload('teacherSignatureUrl')} />
+                        </label>
+                     </div>
+                  </div>
               </div>
             </div>
 
@@ -449,24 +476,56 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                 className={inputClasses}
                 placeholder="Short endorsement..."
               />
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Head of Preschool Name</label>
-                    <input 
-                      type="text"
-                      value={data.headName}
-                      onChange={(e) => handleInputChange('headName', e.target.value)}
-                      className={inputClasses}
-                    />
+              
+              <div className="mt-6 space-y-4 border-t border-gray-100 pt-4">
+                 {/* Head of Preschool */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                        <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Head of Preschool Name</label>
+                        <input 
+                          type="text"
+                          value={data.headName}
+                          onChange={(e) => handleInputChange('headName', e.target.value)}
+                          className={inputClasses}
+                        />
+                     </div>
+                     <div>
+                        <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Stamp</label>
+                         <div className="flex items-center gap-3">
+                            {data.headTeacherStampUrl && (
+                                 <img src={data.headTeacherStampUrl} className="h-10 w-auto border border-gray-200 p-1 rounded bg-gray-50" alt="Stamp" />
+                            )}
+                            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <Upload size={14} /> Upload
+                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload('headTeacherStampUrl')} />
+                            </label>
+                         </div>
+                     </div>
                  </div>
-                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Head of School Name</label>
-                    <input 
-                      type="text"
-                      value={data.headOfSchoolName}
-                      onChange={(e) => handleInputChange('headOfSchoolName', e.target.value)}
-                      className={inputClasses}
-                    />
+
+                 {/* Head of School */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                        <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Head of School Name</label>
+                        <input 
+                          type="text"
+                          value={data.headOfSchoolName}
+                          onChange={(e) => handleInputChange('headOfSchoolName', e.target.value)}
+                          className={inputClasses}
+                        />
+                     </div>
+                     <div>
+                        <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Stamp</label>
+                         <div className="flex items-center gap-3">
+                            {data.headOfSchoolStampUrl && (
+                                 <img src={data.headOfSchoolStampUrl} className="h-10 w-auto border border-gray-200 p-1 rounded bg-gray-50" alt="Stamp" />
+                            )}
+                            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <Upload size={14} /> Upload
+                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload('headOfSchoolStampUrl')} />
+                            </label>
+                         </div>
+                     </div>
                  </div>
               </div>
             </div>

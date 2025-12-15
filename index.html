@@ -27,32 +27,45 @@
           margin: 0 !important;
           padding: 0 !important;
           background-color: white !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
 
-        /* Hide all non-printable elements by default */
+        /* 
+           Crucial: Reset all layout context on parents to prevent clipping.
+           We target #root and all its descendants to remove transforms and overflows
+           that might hide the absolute positioned report card.
+        */
         body * {
           visibility: hidden;
+          overflow: visible !important;
+          transform: none !important;
+          position: static !important;
         }
 
         /* Explicitly show the report card and its children */
         #report-card, #report-card * {
           visibility: visible;
+          position: static !important; /* Default for inner elements */
         }
 
-        /* Position Report Card to fill the page exactly */
+        /* Position Report Card to fill the page exactly relative to the page origin */
         #report-card {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 210mm;
-          min-height: 297mm;
-          margin: 0;
-          z-index: 9999;
-          background: white;
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 210mm !important;
+          min-height: 297mm !important;
+          margin: 0 !important;
+          padding: 10mm !important; 
+          z-index: 99999 !important;
+          background: white !important;
           box-shadow: none !important;
+          display: block !important;
         }
 
-        /* Ensure .no-print elements are removed from layout */
+        /* Ensure .no-print elements are definitely gone */
         .no-print {
           display: none !important;
         }

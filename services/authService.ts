@@ -10,7 +10,7 @@ const SUPABASE_URL = 'https://hblypgjnzkuxnoqvptws.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhibHlwZ2puemt1eG5vcXZwdHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NDY0NTcsImV4cCI6MjA4MTAyMjQ1N30._oENzEoCbnn3gxbgFyw3a30rP3_H3JhE7OdX6oV5Rf4';
 
 // Initialize Client
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY) as any;
 
 const mapSupabaseUser = (u: any): User => {
   return {

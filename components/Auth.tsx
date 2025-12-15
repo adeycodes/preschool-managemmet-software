@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { authService } from '../services/authService';
-import { LogIn, UserPlus, KeyRound, ArrowLeft, Cloud, User as UserIcon, School, Mail, ShieldCheck } from 'lucide-react';
+import { LogIn, UserPlus, KeyRound, ArrowLeft, Cloud, User as UserIcon, School, Mail, ShieldCheck, CheckCircle } from 'lucide-react';
 
 interface AuthProps {
   onLogin: (user: User) => void;
@@ -35,15 +35,16 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         onLogin(user);
       } else if (mode === 'signup') {
         const user = await authService.signup(name, username, email, password);
-        onLogin(user);
+        // Usually Supabase requires email confirmation.
+        setSuccessMsg('Account created! Please check your email to confirm your account. You will be redirected to the dashboard automatically upon confirmation.');
+        // Don't auto-login immediately if confirmation is required, but if it works, good.
+        // If data returned user, it might be auto-confirmed depending on Supabase settings.
+        if(user) {
+             // onLogin(user); // Optional: Login immediately if Supabase allows
+        }
       } else if (mode === 'forgot') {
-        await authService.resetPassword(email, password);
-        setSuccessMsg('Password reset link sent to your email.');
-        setTimeout(() => {
-          setMode('login');
-          setSuccessMsg('');
-          setPassword('');
-        }, 3000);
+        await authService.resetPassword(email);
+        setSuccessMsg('Password recovery email sent! Please check your inbox for the reset link.');
       }
     } catch (err: any) {
       if (err.message && err.message.includes('Invalid login credentials')) {
@@ -82,7 +83,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       case 'signup':
         return { title: 'Create Account', icon: <UserPlus size={20} /> };
       case 'forgot':
-        return { title: 'Reset Password', icon: <KeyRound size={20} /> };
+        return { title: 'Recover Password', icon: <KeyRound size={20} /> };
     }
   };
 
@@ -118,12 +119,15 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
           )}
 
           {successMsg && (
-            <div className="mb-4 p-3 bg-green-50 text-green-600 rounded-lg text-sm border border-green-100">
-              {successMsg}
+            <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200 flex gap-3">
+              <CheckCircle size={20} className="flex-shrink-0" />
+              <p>{successMsg}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Only show form if not in success state for forgot/signup, or if just login */}
+          {(!successMsg || mode === 'login') && (
+            <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -205,6 +209,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               {mode === 'login' ? 'Sign In' : mode === 'signup' ? 'Create Account' : 'Send Reset Link'}
             </button>
           </form>
+          )}
 
           {mode === 'login' && (
             <div className="mt-4">
@@ -225,10 +230,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
           )}
 
           <div className="mt-6 text-center text-sm">
-            {mode === 'forgot' ? (
+            {mode === 'forgot' || (successMsg && mode === 'signup') ? (
               <button
                 onClick={() => switchMode('login')}
-                className="text-gray-600 hover:text-gray-900 flex items-center justify-center gap-1 mx-auto"
+                className="text-gray-600 hover:text-gray-900 flex items-center justify-center gap-1 mx-auto font-medium"
               >
                 <ArrowLeft size={16} />
                 Back to Login
