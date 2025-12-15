@@ -108,9 +108,9 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                 {/* 1. The School Crest (Left Side) */}
                 <div className="text-red-800 flex-shrink-0">
                     {data.schoolCrestUrl ? (
-                         <img src={data.schoolCrestUrl} className="h-28 w-28 object-contain" alt="Crest" />
+                         <img src={data.schoolCrestUrl} className="h-24 w-24 object-contain" alt="Crest" />
                     ) : (
-                      <School size={90} strokeWidth={1.0} color="#8B2E2E" />
+                      <School size={80} strokeWidth={1.0} color="#8B2E2E" />
                     )}
                 </div>
 
@@ -120,7 +120,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                         <div className="flex items-end gap-3 mt-1 mb-1">
                             <img 
                                 src={data.schoolLogoUrl} 
-                                className="h-10 md:h-12 w-auto object-contain max-w-[250px]" 
+                                className="h-10 w-auto object-contain max-w-[250px]" 
                                 alt="School Name" 
                             />
                             <span className="text-2xl font-bold font-serif uppercase tracking-widest text-[#b91c1c] mb-1 leading-none">
@@ -141,7 +141,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                     )}
                     
                     {/* Address - Always under the name/image */}
-                     <div className="text-[11px] text-gray-600 font-medium leading-tight uppercase tracking-wide text-center">
+                     <div className="text-[11px] text-gray-600 font-medium leading-tight normal-case tracking-wide text-center">
                         <p>{data.schoolAddress || 'Address Line 1'}</p>
                         <p>Tel: {data.schoolPhone || '000-000-000'}</p>
                     </div>

@@ -249,7 +249,7 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                            <div className="flex-1">
                              <div className="flex items-center justify-between mb-2">
                                <span className="text-sm font-bold text-gray-900">School Crest (Left)</span>
-                               <label className="cursor-pointer text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                               <label className="cursor-pointer text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1 text-black">
                                  <Upload size={12} /> Upload
                                  <input type="file" className="hidden" accept="image/*" onChange={handleCrestUpload} />
                                </label>
@@ -274,7 +274,7 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                            <div className="flex-1">
                              <div className="flex items-center justify-between mb-2">
                                <span className="text-sm font-bold text-gray-900">School Name Image (Center)</span>
-                               <label className="cursor-pointer text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                               <label className="cursor-pointer text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1 text-black">
                                  <Upload size={12} /> Upload
                                  <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
                                </label>
