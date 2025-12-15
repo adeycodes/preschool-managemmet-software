@@ -177,7 +177,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                         <p className="text-[10px] font-bold text-gray-900">{data.gender}</p>
                     </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Next Term</p>
+                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Next Term Begins</p>
                         <p className="text-[10px] font-bold text-[#b91c1c] truncate">{data.nextTermBegins}</p>
                     </div>
                       <div>
