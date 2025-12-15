@@ -19,12 +19,18 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
   // Helper to remove quotes from remarks
   const cleanRemark = (text: string) => text ? text.replace(/^["']|["']$/g, '').trim() : "No remarks provided.";
 
+  // Helper to parse school name for styling
+  const schoolName = data.schoolName || 'LauraStephens School';
+  const nameParts = schoolName.split(' ');
+  const firstName = nameParts[0];
+  const restName = nameParts.slice(1).join(' ');
+
   const gradingScale = [
       { grade: 'A+', range: '90-100', remark: 'EXCEEDING' },
       { grade: 'A', range: '70-89', remark: 'EXCEEDING' },
       { grade: 'B', range: '50-69', remark: 'EXPECTED' },
       { grade: 'C', range: '40-49', remark: 'EMERGING' },
-      { grade: 'D', range: '0-39', remark: 'NEEDS SPECIAL HELP' },
+      { grade: 'D', range: '0-39', remark: 'NEEDS HELP' },
   ];
 
   const renderSubjects = (subjects: Subject[]) => {
@@ -106,10 +112,17 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                       )}
                 </div>
                 <div className="text-left">
-                    <h1 className="text-2xl font-serif font-bold text-[#8B2E2E] tracking-wide mb-0 leading-none uppercase">
-                        {data.schoolName || 'LAURASTEPHENS SCHOOL'}
+                    <h1 className="text-[#8B2E2E] mb-1 leading-none flex items-baseline gap-3">
+                        <span className="text-5xl" style={{ fontFamily: "'UnifrakturMaguntia', cursive", letterSpacing: '-2px' }}>
+                            {firstName}
+                        </span>
+                        {restName && (
+                            <span className="text-2xl font-bold font-serif uppercase tracking-widest text-[#b91c1c]">
+                                {restName}
+                            </span>
+                        )}
                     </h1>
-                    <div className="text-[11px] text-gray-600 font-medium leading-tight uppercase tracking-wide mt-1">
+                    <div className="text-[11px] text-gray-600 font-medium leading-tight word-case tracking-wide mt-0">
                         <p>{data.schoolAddress || 'Address Line 1'}</p>
                         <p>Tel: {data.schoolPhone || '000-000-000'}</p>
                     </div>
@@ -121,7 +134,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
         <div className="flex items-center justify-center mb-2 flex-shrink-0">
             <div className="bg-[#b91c1c] text-white py-0.5 px-8 rounded-sm shadow-sm">
                 <h2 className="text-[11px] font-bold uppercase tracking-[0.2em]">
-                    Term Report Card
+                Report For {data.term} Term {data.session} Session
                 </h2>
             </div>
         </div>

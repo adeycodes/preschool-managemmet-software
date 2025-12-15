@@ -21,7 +21,7 @@ declare global {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  schoolName: 'LAURASTEPHENS SCHOOL',
+  schoolName: 'LauraStephens School',
   schoolAddress: 'LauraStephens Road, Lekki Scheme II, Lekki-Epe Expressway, Lagos.',
   schoolPhone: '08137022005',
   term: 'Second (Spring)',
