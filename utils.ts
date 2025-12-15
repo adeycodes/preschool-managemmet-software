@@ -9,7 +9,7 @@ export const getGradeInfo = (totalScore: number) => {
   if (totalScore >= 70) return { grade: 'A', remark: 'EXCEEDING', color: 'text-green-500' };
   if (totalScore >= 50) return { grade: 'B', remark: 'EXPECTED', color: 'text-blue-600' };
   if (totalScore >= 40) return { grade: 'C', remark: 'EMERGING', color: 'text-yellow-600' };
-  return { grade: 'D', remark: 'NEEDS HELP', color: 'text-red-600' };
+  return { grade: 'D', remark: 'NEEDS SPECIAL HELP', color: 'text-red-600' };
 };
 
 export const calculateAverage = (subjects: Subject[]) => {

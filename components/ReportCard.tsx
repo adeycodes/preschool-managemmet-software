@@ -24,7 +24,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
       { grade: 'A', range: '70-89', remark: 'EXCEEDING' },
       { grade: 'B', range: '50-69', remark: 'EXPECTED' },
       { grade: 'C', range: '40-49', remark: 'EMERGING' },
-      { grade: 'D', range: '0-39', remark: 'NEEDS HELP' },
+      { grade: 'D', range: '0-39', remark: 'NEEDS SPECIAL HELP' },
   ];
 
   const renderSubjects = (subjects: Subject[]) => {
