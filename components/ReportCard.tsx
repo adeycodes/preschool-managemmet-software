@@ -109,7 +109,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                     <h1 className="text-2xl font-serif font-bold text-[#8B2E2E] tracking-wide mb-0 leading-none uppercase">
                         {data.schoolName || 'LAURASTEPHENS SCHOOL'}
                     </h1>
-                    <div className="text-[10px] text-gray-600 font-medium leading-tight uppercase tracking-wide mt-1">
+                    <div className="text-[11px] text-gray-600 font-medium leading-tight uppercase tracking-wide mt-1">
                         <p>{data.schoolAddress || 'Address Line 1'}</p>
                         <p>Tel: {data.schoolPhone || '000-000-000'}</p>
                     </div>
@@ -120,7 +120,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
         {/* TITLE */}
         <div className="flex items-center justify-center mb-2 flex-shrink-0">
             <div className="bg-[#b91c1c] text-white py-0.5 px-8 rounded-sm shadow-sm">
-                <h2 className="text-[10px] font-bold uppercase tracking-[0.2em]">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.2em]">
                     Term Report Card
                 </h2>
             </div>
@@ -136,7 +136,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                         {data.photoUrl ? (
                             <img src={data.photoUrl} className="w-full h-full object-cover" alt="Student" />
                         ) : (
-                            <span className="text-[8px] font-bold text-gray-400 uppercase leading-tight text-center">Student<br/>Photo</span>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase leading-tight text-center">Student<br/>Photo</span>
                         )}
                     </div>
                 </div>
@@ -145,44 +145,44 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                 <div className="flex-1 grid grid-cols-3 gap-y-1.5 gap-x-4 border-l border-gray-200 pl-4">
                     {/* Column 1 */}
                     <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Student Name</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Student Name</p>
                         <p className="text-[11px] font-bold text-gray-900 leading-tight truncate">{data.fullName}</p>
                     </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Class</p>
-                        <p className="text-[10px] font-bold text-gray-900">{data.className}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Class</p>
+                        <p className="text-[11px] font-bold text-gray-900">{data.className}</p>
                     </div>
                       <div>
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">School Opened</p>
-                        <p className="text-[10px] font-bold text-gray-900">{data.schoolOpened}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">School Opened</p>
+                        <p className="text-[11px] font-bold text-gray-900">{data.schoolOpened}</p>
                     </div>
 
                     {/* Column 2 */}
                     <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Age</p>
-                        <p className="text-[10px] font-bold text-gray-900">{data.age} Years</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Age</p>
+                        <p className="text-[11px] font-bold text-gray-900">{data.age} Years</p>
                     </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">No. on Roll</p>
-                        <p className="text-[10px] font-bold text-gray-900">{data.rollNumber || '-'}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">No. on Roll</p>
+                        <p className="text-[11px] font-bold text-gray-900">{data.rollNumber || '-'}</p>
                     </div>
                       <div>
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Times Present</p>
-                        <p className="text-[10px] font-bold text-gray-900">{data.timesPresent}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Times Present</p>
+                        <p className="text-[11px] font-bold text-gray-900">{data.timesPresent}</p>
                     </div>
 
                     {/* Column 3 */}
                     <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Sex</p>
-                        <p className="text-[10px] font-bold text-gray-900">{data.gender}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Sex</p>
+                        <p className="text-[11px] font-bold text-gray-900">{data.gender}</p>
                     </div>
                       <div className="border-b border-gray-100 pb-0.5">
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Next Term Begins</p>
-                        <p className="text-[10px] font-bold text-[#b91c1c] truncate">{data.nextTermBegins}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Next Term Begins</p>
+                        <p className="text-[11px] font-bold text-[#b91c1c] truncate">{data.nextTermBegins}</p>
                     </div>
                       <div>
-                        <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-0">Times Absent</p>
-                        <p className="text-[10px] font-bold text-gray-900">{timesAbsent}</p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-0">Times Absent</p>
+                        <p className="text-[11px] font-bold text-gray-900">{timesAbsent}</p>
                     </div>
                 </div>
             </div>
@@ -198,24 +198,24 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="bg-[#0f172a] text-white">
-                        <th className="py-1.5 px-2 text-left text-[8px] font-bold uppercase tracking-wider w-[35%]">Subject Area</th>
-                        <th className="py-1.5 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[12%]">CA (40)</th>
-                        <th className="py-1.5 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[12%]">Exam (60)</th>
-                        <th className="py-1.5 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[10%]">Total</th>
-                        <th className="py-1.5 px-2 text-center text-[8px] font-bold uppercase tracking-wider w-[10%]">Grade</th>
-                        <th className="py-1.5 px-2 text-left text-[8px] font-bold uppercase tracking-wider w-[21%]">Remark</th>
+                        <th className="py-1.5 px-2 text-left text-[9px] font-bold uppercase tracking-wider w-[35%]">Subject Area</th>
+                        <th className="py-1.5 px-2 text-center text-[9px] font-bold uppercase tracking-wider w-[12%]">CA (40)</th>
+                        <th className="py-1.5 px-2 text-center text-[9px] font-bold uppercase tracking-wider w-[12%]">Exam (60)</th>
+                        <th className="py-1.5 px-2 text-center text-[9px] font-bold uppercase tracking-wider w-[10%]">Total</th>
+                        <th className="py-1.5 px-2 text-center text-[9px] font-bold uppercase tracking-wider w-[10%]">Grade</th>
+                        <th className="py-1.5 px-2 text-left text-[9px] font-bold uppercase tracking-wider w-[21%]">Remark</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr className="bg-gray-50 border-b border-gray-100">
-                        <td colSpan={6} className="py-1 px-2 text-[8px] font-bold text-gray-500 uppercase tracking-wide">
+                        <td colSpan={6} className="py-1 px-2 text-[9px] font-bold text-gray-500 uppercase tracking-wide">
                             Prime Areas of Learning
                         </td>
                     </tr>
                     {renderSubjects(data.subjects.filter(s => s.category === 'Prime'))}
 
                     <tr className="bg-gray-50 border-b border-gray-100">
-                        <td colSpan={6} className="py-1 px-2 text-[8px] font-bold text-gray-500 uppercase tracking-wide">
+                        <td colSpan={6} className="py-1 px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wide">
                             Specific Areas of Learning
                         </td>
                     </tr>
@@ -226,10 +226,10 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             {/* Table Footer */}
             <div className="flex items-center justify-end gap-6 mt-1.5 border-t border-gray-200 pt-1.5">
                 <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Total</span>
-                <span className="text-sm font-bold text-gray-900">{studentTotal} <span className="text-[9px] font-medium text-gray-400">/ {totalPossible}</span></span>
+                <span className="text-sm font-bold text-gray-900">{studentTotal} <span className="text-[11px] font-medium text-gray-400">/ {totalPossible}</span></span>
                 
                 <div className="border border-gray-200 rounded px-3 py-0.5 flex items-center gap-2 ml-4 bg-white">
-                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wide">Average</span>
+                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Average</span>
                     <span className="text-sm font-bold text-[#b91c1c]">{average}%</span>
                 </div>
             </div>
@@ -241,18 +241,18 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             <div>
                 <div className="flex items-center gap-2 mb-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#b91c1c]"></div>
-                    <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Conduct</h3>
+                    <h3 className="text-[11px] font-bold text-[#b91c1c] uppercase tracking-widest">Conduct</h3>
                 </div>
                 <div className="border-t border-gray-200">
                     <div className="grid grid-cols-[1fr_repeat(6,1.2rem)] bg-gray-50 border-b border-gray-200">
-                        <div className="py-1 px-2 text-[8px] font-bold text-gray-500 uppercase">Trait</div>
+                        <div className="py-1 px-2 text-[9px] font-bold text-gray-500 uppercase">Trait</div>
                         {['A','B','C','D','E','F'].map(l => (
-                            <div key={l} className="py-1 text-center text-[8px] font-bold text-gray-500 border-l border-gray-200">{l}</div>
+                            <div key={l} className="py-1 text-center text-[9px] font-bold text-gray-500 border-l border-gray-200">{l}</div>
                         ))}
                     </div>
                     {data.conducts.map((c) => (
                         <div key={c.id} className="grid grid-cols-[1fr_repeat(6,1.2rem)] border-b border-gray-100 last:border-0 items-center">
-                            <div className="py-1 px-2 text-[9px] font-medium text-gray-700 truncate">{c.name}</div>
+                            <div className="py-1 px-2 text-[11px] font-medium text-gray-700 truncate">{c.name}</div>
                               {['A','B','C','D','E','F'].map(l => (
                                 <div key={l} className="py-1 border-l border-gray-100 flex items-center justify-center h-full">
                                     {c.rating === l && <Check size={10} className="text-green-600" strokeWidth={3} />}
@@ -267,23 +267,23 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             <div>
                 <div className="flex items-center gap-2 mb-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#b91c1c]"></div>
-                    <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Grading</h3>
+                    <h3 className="text-[11px] font-bold text-[#b91c1c] uppercase tracking-widest">Grading</h3>
                 </div>
                 <div className="border border-gray-200 rounded-sm overflow-hidden">
                     <table className="w-full">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="py-1 px-2 text-left text-[8px] font-bold text-gray-500 uppercase">Grd</th>
-                                <th className="py-1 px-2 text-center text-[8px] font-bold text-gray-500 uppercase">Score</th>
-                                <th className="py-1 px-2 text-left text-[8px] font-bold text-gray-500 uppercase">Remark</th>
+                                <th className="py-1 px-2 text-left text-[9px] font-bold text-gray-500 uppercase">Grd</th>
+                                <th className="py-1 px-2 text-center text-[9px] font-bold text-gray-500 uppercase">Score</th>
+                                <th className="py-1 px-2 text-left text-[9px] font-bold text-gray-500 uppercase">Remark</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {gradingScale.map((g) => (
                                 <tr key={g.grade}>
-                                    <td className={`py-1 px-2 text-[9px] font-bold ${g.grade.startsWith('A') || g.grade === 'D' ? 'text-[#b91c1c]' : 'text-gray-800'}`}>{g.grade}</td>
-                                    <td className="py-1 px-2 text-center text-[8px] text-gray-600">{g.range}</td>
-                                    <td className="py-1 px-2 text-[8px] font-bold text-gray-700 uppercase">{g.remark}</td>
+                                    <td className={`py-1 px-2 text-[11px] font-bold ${g.grade.startsWith('A') || g.grade === 'D' ? 'text-[#b91c1c]' : 'text-gray-800'}`}>{g.grade}</td>
+                                    <td className="py-1 px-2 text-center text-[9px] text-gray-600">{g.range}</td>
+                                    <td className="py-1 px-2 text-[9px] font-bold text-gray-700 uppercase">{g.remark}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -299,11 +299,11 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
             <div>
                 <div className="flex items-center gap-2 mb-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-800"></div>
-                    <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-widest">Class Teacher's Remark</h3>
+                    <h3 className="text-[11px] font-bold text-gray-800 uppercase tracking-widest">Class Teacher's Remark</h3>
                 </div>
                 <div className="flex gap-4 border border-gray-200 rounded-sm p-3 bg-[#F9FAFB] min-h-[50px] items-stretch">
                     <div className="flex-1 flex items-center">
-                        <p className="text-[10px] text-gray-800 italic leading-snug whitespace-pre-wrap break-words w-full">
+                        <p className="text-[11px] text-gray-800 italic leading-snug whitespace-pre-wrap break-words w-full">
                             {cleanRemark(data.teacherRemark)}
                         </p>
                     </div>
@@ -329,11 +329,11 @@ const ReportCard: React.FC<ReportCardProps> = ({ data }) => {
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#b91c1c]"></div>
-                        <h3 className="text-[9px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of Preschool</h3>
+                        <h3 className="text-[11px] font-bold text-[#b91c1c] uppercase tracking-widest">Head of Preschool</h3>
                     </div>
                     <div className="border border-gray-200 rounded-sm p-3 h-full flex flex-col justify-between relative min-h-[70px]">
                         <div className="mb-2 relative z-20">
-                             <p className="text-[10px] text-gray-800 italic leading-snug whitespace-pre-wrap break-words">
+                             <p className="text-[11px] text-gray-800 italic leading-snug whitespace-pre-wrap break-words">
                                 {cleanRemark(data.headRemark)}
                             </p>
                         </div>
