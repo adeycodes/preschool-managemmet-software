@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Printer, Save, FileSpreadsheet, Download, LogOut, FileText, ChevronLeft, Menu } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Printer, Save, FileSpreadsheet, Download, LogOut, FileText, ChevronLeft, Menu, Cloud, CloudOff, RefreshCw, Upload } from 'lucide-react';
 import InputForm from './components/InputForm';
 import ReportCard from './components/ReportCard';
 import { Auth } from './components/Auth';
@@ -12,6 +12,7 @@ import { StudentData, INITIAL_SUBJECTS, INITIAL_CONDUCTS, User, AppSettings } fr
 import { generateRemarks } from './services/geminiService';
 import { generateExcel } from './services/excelService';
 import { authService, supabase } from './services/authService';
+import { db } from './services/db';
 
 // Extend window for html2pdf
 declare global {
@@ -83,6 +84,15 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreviewMobile, setShowPreviewMobile] = useState(false);
   const [isExcelGenerating, setIsExcelGenerating] = useState(false);
+  
+  // Sync State
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [migrationStatus, setMigrationStatus] = useState<string>('');
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Helper: Is Guest?
+  const isGuest = currentUser?.id === 'guest-user';
 
   // --- Effects ---
 
@@ -92,10 +102,9 @@ function App() {
     const user = authService.getCurrentUser();
     if (user) setCurrentUser(user);
 
-    // Listen for Supabase auth changes (e.g. email confirmed redirect)
+    // Listen for Supabase auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-         // Map session to our User type
          const mappedUser: User = {
             id: session.user.id,
             email: session.user.email || '',
@@ -108,6 +117,7 @@ function App() {
       } else if (event === 'SIGNED_OUT') {
          setCurrentUser(null);
          localStorage.removeItem('kinderReport_currentUser');
+         setStudents([]);
       }
     });
 
@@ -116,64 +126,157 @@ function App() {
     };
   }, []);
 
-  // 2. Load User-Specific Data
+  // 2. Data Loading & MIGRATION
   useEffect(() => {
     if (!currentUser) return;
 
-    // Load Settings specific to this user
-    const settingsKey = `kinderReport_settings_${currentUser.id}`;
-    const savedSettings = localStorage.getItem(settingsKey);
-    if (savedSettings) {
-      try {
-        setAppSettings(JSON.parse(savedSettings));
-      } catch (e) { console.error("Error loading settings", e); }
-    } else {
-        setAppSettings(DEFAULT_SETTINGS); // Reset to defaults if no user settings found
-    }
+    const loadAndMigrateData = async () => {
+      setIsLoadingData(true);
+      
+      if (isGuest) {
+        // --- GUEST MODE: Load from Local Storage ---
+        const settingsKey = `kinderReport_settings_${currentUser.id}`;
+        const savedSettings = localStorage.getItem(settingsKey);
+        if (savedSettings) setAppSettings(JSON.parse(savedSettings));
 
-    // Load Roster specific to this user
-    const rosterKey = `kinderReport_roster_${currentUser.id}`;
-    const savedRoster = localStorage.getItem(rosterKey);
-    if (savedRoster) {
-      try {
-        const parsed = JSON.parse(savedRoster);
-        // Hydration fix for schema updates
-        const hydratedStudents = parsed.map((s: any) => ({
-             ...s,
-             schoolName: s.schoolName || DEFAULT_SETTINGS.schoolName,
-             schoolAddress: s.schoolAddress || DEFAULT_SETTINGS.schoolAddress,
-             schoolPhone: s.schoolPhone || DEFAULT_SETTINGS.schoolPhone,
-             schoolCrestUrl: s.schoolCrestUrl || null, // Hydrate new field
-             subjects: INITIAL_SUBJECTS.map(initSub => {
-                const existing = s.subjects?.find((existingSub: any) => existingSub.id === initSub.id);
-                return existing || initSub;
-             }),
-             conducts: INITIAL_CONDUCTS.map(initCon => {
-                const existing = s.conducts?.find((e: any) => e.id === initCon.id);
-                return existing || initCon;
-             })
-        }));
-        setStudents(hydratedStudents);
-      } catch (e) {
-        console.error("Failed to load saved roster", e);
+        const rosterKey = `kinderReport_roster_${currentUser.id}`;
+        const savedRoster = localStorage.getItem(rosterKey);
+        if (savedRoster) {
+          try {
+             // Hydration for legacy data
+             const parsed = JSON.parse(savedRoster).map((s: any) => ({
+                ...s,
+                subjects: INITIAL_SUBJECTS.map(initSub => s.subjects?.find((existing: any) => existing.id === initSub.id) || initSub),
+                conducts: INITIAL_CONDUCTS.map(initCon => s.conducts?.find((e: any) => e.id === initCon.id) || initCon)
+             }));
+             setStudents(parsed);
+          } catch(e) { console.error("Error parsing local roster", e); }
+        }
+        setIsLoadingData(false);
+
+      } else {
+        // --- AUTH MODE: Cloud Sync & Migration ---
+        try {
+          // A. Check for "Guest" data or "Legacy" data to migrate
+          // We look for the 'guest-user' key because that's where their offline data lives
+          const legacyRosterKey = 'kinderReport_roster_guest-user';
+          const legacySettingsKey = 'kinderReport_settings_guest-user';
+          const localRoster = localStorage.getItem(legacyRosterKey);
+          const localSettings = localStorage.getItem(legacySettingsKey);
+
+          let hasMigrated = false;
+
+          if (localRoster) {
+            setMigrationStatus('Found offline data. Syncing to cloud...');
+            const parsedRoster: StudentData[] = JSON.parse(localRoster);
+            
+            // Upload each student to Supabase associated with the NEW userId
+            const uploadPromises = parsedRoster.map(student => 
+               db.upsertStudent(currentUser.id, { ...student }) // The DB service handles the user_id association
+            );
+            
+            await Promise.all(uploadPromises);
+            
+            // Rename the local key so we don't migrate again next time
+            localStorage.setItem(`${legacyRosterKey}_migrated_to_${currentUser.id}`, localRoster);
+            localStorage.removeItem(legacyRosterKey);
+            
+            // Migrate Settings
+            if (localSettings) {
+                const parsedSettings = JSON.parse(localSettings);
+                await db.saveSettings(currentUser.id, parsedSettings);
+                localStorage.removeItem(legacySettingsKey);
+            }
+
+            hasMigrated = true;
+            setMigrationStatus('Sync complete!');
+            setTimeout(() => setMigrationStatus(''), 2000);
+          }
+
+          // B. Fetch fresh data from Cloud (which now contains migrated data)
+          const [remoteSettings, remoteStudents] = await Promise.all([
+             db.fetchSettings(currentUser.id),
+             db.fetchStudents(currentUser.id)
+          ]);
+          
+          if (remoteSettings) setAppSettings(remoteSettings);
+          if (remoteStudents) setStudents(remoteStudents);
+          
+        } catch (error) {
+          console.error("Failed to load/migrate cloud data", error);
+          alert("Could not sync with the cloud. Please check your internet connection.");
+        } finally {
+          setIsLoadingData(false);
+        }
       }
-    } else {
-        setStudents([]); // Clear students if switching to a new user with no data
+    };
+
+    loadAndMigrateData();
+  }, [currentUser, isGuest]);
+
+  // --- Data Persistence Helpers ---
+
+  // Debounced Save for Student Updates
+  const queueStudentSave = useCallback((student: StudentData) => {
+    if (isGuest) {
+      return; 
     }
-  }, [currentUser]);
 
-  // 3. Save User-Specific Data
-  useEffect(() => {
-    if (!currentUser) return;
-    const settingsKey = `kinderReport_settings_${currentUser.id}`;
-    localStorage.setItem(settingsKey, JSON.stringify(appSettings));
-  }, [appSettings, currentUser]);
+    // Cloud Save
+    setIsSyncing(true);
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        if (currentUser) {
+          await db.upsertStudent(currentUser.id, student);
+        }
+      } catch (err) {
+        console.error("Save failed", err);
+      } finally {
+        setIsSyncing(false);
+      }
+    }, 1500); // 1.5s debounce
+  }, [currentUser, isGuest]);
 
+
+  // Immediate Save for Creates/Deletes/Settings
+  const saveStudentImmediate = async (student: StudentData) => {
+    if (isGuest) return; // Handled by effect
+    setIsSyncing(true);
+    try {
+      if (currentUser) await db.upsertStudent(currentUser.id, student);
+    } finally { setIsSyncing(false); }
+  };
+
+  const deleteStudentImmediate = async (id: string) => {
+    if (isGuest) return; // Handled by effect
+    setIsSyncing(true);
+    try {
+      if (currentUser) await db.deleteStudent(id);
+    } finally { setIsSyncing(false); }
+  };
+
+  const saveSettingsImmediate = async (newSettings: AppSettings) => {
+    setAppSettings(newSettings);
+    if (isGuest) {
+      localStorage.setItem(`kinderReport_settings_${currentUser?.id}`, JSON.stringify(newSettings));
+    } else if (currentUser) {
+      setIsSyncing(true);
+      try {
+        await db.saveSettings(currentUser.id, newSettings);
+      } finally { setIsSyncing(false); }
+    }
+  };
+
+
+  // --- Effect for Guest LocalStorage Persistence ---
   useEffect(() => {
-    if (!currentUser) return;
-    const rosterKey = `kinderReport_roster_${currentUser.id}`;
-    localStorage.setItem(rosterKey, JSON.stringify(students));
-  }, [students, currentUser]);
+    if (isGuest && currentUser) {
+      localStorage.setItem(`kinderReport_roster_${currentUser.id}`, JSON.stringify(students));
+    }
+  }, [students, isGuest, currentUser]);
+
 
   // --- Handlers ---
 
@@ -181,24 +284,26 @@ function App() {
 
   const handleUpdateActiveStudent = (updatedData: StudentData) => {
     setStudents(prev => prev.map(s => s.id === updatedData.id ? updatedData : s));
+    queueStudentSave(updatedData);
   };
 
   const handleCreateStudent = () => {
     const newStudent = createInitialStudent(appSettings);
-    // Inherit some fields from previous student for convenience (like Logo or Class)
+    // Inherit fields logic
     if (students.length > 0) {
         const last = students[students.length - 1];
         newStudent.className = last.className;
         newStudent.schoolLogoUrl = last.schoolLogoUrl;
         newStudent.schoolCrestUrl = last.schoolCrestUrl || newStudent.schoolCrestUrl;
-        // Also inherit stamps if they exist on previous student to maintain consistency
         newStudent.teacherSignatureUrl = last.teacherSignatureUrl || newStudent.teacherSignatureUrl;
         newStudent.headTeacherStampUrl = last.headTeacherStampUrl || newStudent.headTeacherStampUrl;
         newStudent.headOfSchoolStampUrl = last.headOfSchoolStampUrl || newStudent.headOfSchoolStampUrl;
     }
+    
     setStudents(prev => [...prev, newStudent]);
     setCurrentStudentId(newStudent.id);
     setIsEditorActive(true);
+    saveStudentImmediate(newStudent);
   };
 
   const handleEditStudent = (student: StudentData) => {
@@ -209,6 +314,7 @@ function App() {
   const handleDeleteStudent = (id: string) => {
     setStudents(prev => prev.filter(s => s.id !== id));
     if (currentStudentId === id) setIsEditorActive(false);
+    deleteStudentImmediate(id);
   };
 
   const handleGenerateRemarks = async () => {
@@ -225,7 +331,7 @@ function App() {
         teacherRemark: remarks.teacherRemark,
         headRemark: remarks.headRemark
       };
-      handleUpdateActiveStudent(updated);
+      handleUpdateActiveStudent(updated); // This will trigger queueSave
     } catch (error) {
       alert("Failed to generate remarks.");
     } finally {
@@ -249,18 +355,36 @@ function App() {
   const handleLogout = () => {
     authService.logout();
     setCurrentUser(null);
-    setStudents([]); // Clear sensitive data from state on logout
+    setStudents([]); 
   };
 
   // --- Render ---
 
   if (!currentUser) return <Auth onLogin={setCurrentUser} />;
 
-  // 1. Editor View (Full Screen Override)
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-4">
+        {migrationStatus ? (
+          <>
+             <Upload className="animate-bounce text-blue-600" size={48} />
+             <p className="text-xl font-bold text-gray-800">{migrationStatus}</p>
+             <p className="text-sm text-gray-500">Please wait while we secure your data to the cloud...</p>
+          </>
+        ) : (
+          <>
+             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
+             <p className="text-gray-500 font-medium">Syncing your classroom...</p>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // 1. Editor View
   if (isEditorActive) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Editor Header - Added no-print */}
         <header className="bg-white border-b sticky top-0 z-20 px-4 h-16 flex items-center justify-between shadow-sm no-print">
            <div className="flex items-center gap-4">
              <button 
@@ -274,10 +398,26 @@ function App() {
               <span className="font-semibold text-gray-800 hidden sm:inline">
                 Editing: {activeStudent.fullName || 'New Student'}
               </span>
+              
+              {/* Sync Status Indicator */}
+              {!isGuest && (
+                 <div className="ml-2 flex items-center gap-1.5 text-xs font-medium bg-gray-100 px-2 py-1 rounded-full text-gray-500">
+                    {isSyncing ? (
+                      <>
+                        <RefreshCw size={12} className="animate-spin text-blue-600" />
+                        <span className="text-blue-600">Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Cloud size={12} />
+                        <span>Saved</span>
+                      </>
+                    )}
+                 </div>
+              )}
            </div>
 
            <div className="flex items-center gap-2">
-              {/* Mobile Preview Toggle */}
               <button 
                 className="sm:hidden px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg"
                 onClick={() => setShowPreviewMobile(!showPreviewMobile)}
@@ -304,7 +444,6 @@ function App() {
            </div>
         </header>
 
-        {/* Editor Content */}
         <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex gap-8">
             <div className={`flex-1 min-w-0 ${showPreviewMobile ? 'hidden' : 'block'} sm:block no-print`}>
               <InputForm 
@@ -317,7 +456,6 @@ function App() {
             <div className={`flex-1 ${showPreviewMobile ? 'block' : 'hidden'} sm:block`}>
                <div className="sticky top-24">
                   <div className="overflow-auto max-h-[calc(100vh-12rem)] rounded-xl border border-gray-200 shadow-xl bg-gray-500/10 p-4 sm:p-8">
-                    {/* Combine active student data with latest app settings for display */}
                     <ReportCard 
                       data={{
                         ...activeStudent,
@@ -327,7 +465,7 @@ function App() {
                         term: appSettings.term,
                         session: appSettings.session,
                         nextTermBegins: appSettings.nextTermBegins,
-                        // Ensure stamps fall back to settings if not present on student
+                        // Defaults
                         schoolCrestUrl: activeStudent.schoolCrestUrl || appSettings.defaultSchoolCrestUrl,
                         teacherSignatureUrl: activeStudent.teacherSignatureUrl || appSettings.defaultTeacherSignatureUrl,
                         headTeacherStampUrl: activeStudent.headTeacherStampUrl || appSettings.defaultHeadTeacherStampUrl,
@@ -355,7 +493,6 @@ function App() {
       />
 
       <div className="lg:ml-64 min-h-screen flex flex-col transition-all duration-300">
-        {/* Top Bar */}
         <header className="bg-white h-16 border-b border-gray-200 sticky top-0 z-10 px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
@@ -368,12 +505,19 @@ function App() {
               {activeTab === 'dashboard' ? 'Overview' : activeTab}
             </h1>
           </div>
-          <div className="text-sm text-gray-500 hidden sm:block">
-             {appSettings.term} • {appSettings.session}
+          <div className="flex items-center gap-4">
+              {!isGuest && (
+                <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                   {isSyncing ? <RefreshCw size={14} className="animate-spin text-blue-500" /> : <Cloud size={14} className="text-green-500" />}
+                   <span>{isSyncing ? 'Syncing...' : 'Cloud Connected'}</span>
+                </div>
+              )}
+             <div className="text-sm text-gray-500 hidden sm:block">
+                {appSettings.term} • {appSettings.session}
+             </div>
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 p-4 sm:p-8 overflow-x-hidden">
           <div className="max-w-6xl mx-auto">
             {activeTab === 'dashboard' && (
@@ -399,7 +543,7 @@ function App() {
             {activeTab === 'settings' && (
               <Settings 
                 settings={appSettings}
-                onSave={setAppSettings}
+                onSave={saveSettingsImmediate}
               />
             )}
           </div>
