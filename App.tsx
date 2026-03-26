@@ -31,7 +31,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   schoolName: 'LauraStephens School',
   schoolAddress: 'LauraStephens Road, Lekki Scheme II, Lekki-Epe Expressway, Lagos.',
   schoolPhone: '08137022005',
-  term: 'Second (Spring)',
+  term: 'First (Autumn)',
   session: '2024/2025',
   nextTermBegins: 'Monday, 28th April, 2025',
   defaultTeacherName: 'Adejolaoluwa Odekoya',
@@ -97,9 +97,13 @@ function App() {
 
   const copyTermRoster = async (fromTerm: string, toTerm: string) => {
     const toTermEntries = students.filter(s => s.term === toTerm && s.session === appSettings.session);
-    if (toTermEntries.length > 0) return; // Already has data for that term
+    if (toTermEntries.length > 0) {
+      console.log('Term', toTerm, 'already has', toTermEntries.length, 'students, skipping copy');
+      return; // Already has data for that term
+    }
 
     const source = students.filter(s => s.term === fromTerm && s.session === appSettings.session);
+    console.log('Found', source.length, 'students in term', fromTerm, 'to copy to', toTerm);
     if (source.length === 0) return;
 
     const duplicates = source.map((student) => {
@@ -118,6 +122,7 @@ function App() {
       return base;
     });
 
+    console.log('Created', duplicates.length, 'duplicates for term', toTerm);
     setStudents((prev) => [...prev, ...duplicates]);
 
     if (!isGuest && currentUser) {
@@ -126,6 +131,7 @@ function App() {
   };
 
   const handleTermChange = async (newTerm: string) => {
+    console.log('Switching from term:', appSettings.term, 'to:', newTerm);
     if (newTerm === appSettings.term) return;
 
     await copyTermRoster(appSettings.term, newTerm);
@@ -142,6 +148,7 @@ function App() {
 
     // optionally clear currentStudentId to avoid mismatch across terms
     setCurrentStudentId(null);
+    console.log('Term switched successfully to:', newTerm);
   };
 
   // UI State
@@ -590,7 +597,7 @@ function App() {
                    <span>{isSyncing ? 'Syncing...' : 'Cloud Connected'}</span>
                 </div>
               )}
-             <div className="flex items-center gap-2 text-sm text-gray-500 hidden sm:flex">
+             <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span className="font-medium">Term:</span>
                 <select
                   value={appSettings.term}
