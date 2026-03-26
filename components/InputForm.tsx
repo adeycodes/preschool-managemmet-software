@@ -11,6 +11,9 @@ interface InputFormProps {
   isGenerating: boolean;
 }
 
+const TERM_OPTIONS = ['First (Autumn)', 'Second (Spring)', 'Third (Summer)'];
+const SESSION_OPTIONS = ['2023/2024', '2024/2025', '2025/2026', '2026/2027'];
+
 const TEACHER_COMMENTS = [
   "Shows great enthusiasm in class.",
   "Needs to focus more on individual tasks.",
@@ -226,6 +229,34 @@ const InputForm: React.FC<InputFormProps> = ({ data, onChange, onGenerateRemarks
                     onChange={(e) => handleInputChange('rollNumber', e.target.value)}
                     className={inputClasses}
                   />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClasses}>Term</label>
+                    <select
+                      value={data.term}
+                      onChange={(e) => handleInputChange('term', e.target.value)}
+                      className={inputClasses}
+                    >
+                      <option value="">Select Term</option>
+                      {TERM_OPTIONS.map(termOption => (
+                        <option key={termOption} value={termOption}>{termOption}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Session</label>
+                    <select
+                      value={data.session}
+                      onChange={(e) => handleInputChange('session', e.target.value)}
+                      className={inputClasses}
+                    >
+                      <option value="">Select Session</option>
+                      {SESSION_OPTIONS.map(sessionOption => (
+                        <option key={sessionOption} value={sessionOption}>{sessionOption}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 

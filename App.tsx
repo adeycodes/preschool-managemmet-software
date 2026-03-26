@@ -21,6 +21,12 @@ declare global {
   }
 }
 
+const TERM_OPTIONS = [
+  'First (Autumn)',
+  'Second (Spring)',
+  'Third (Summer)',
+];
+
 const DEFAULT_SETTINGS: AppSettings = {
   schoolName: 'LauraStephens School',
   schoolAddress: 'LauraStephens Road, Lekki Scheme II, Lekki-Epe Expressway, Lagos.',
@@ -32,6 +38,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultHeadName: 'Ozoro Elohor Sarah',
   defaultHeadOfSchoolName: 'Raymond Adeleke',
 };
+
+const generateNewStudentId = () => `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
 const createInitialStudent = (settings: AppSettings): StudentData => ({
   id: Date.now().toString(),
@@ -79,7 +87,63 @@ function App() {
   const [students, setStudents] = useState<StudentData[]>([]);
   const [currentStudentId, setCurrentStudentId] = useState<string | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
-  
+
+  // Helper: Is Guest?
+  const isGuest = currentUser?.id === 'guest-user';
+
+  const getTermStudents = () => {
+    return students.filter(s => s.term === appSettings.term && s.session === appSettings.session);
+  };
+
+  const copyTermRoster = async (fromTerm: string, toTerm: string) => {
+    const toTermEntries = students.filter(s => s.term === toTerm && s.session === appSettings.session);
+    if (toTermEntries.length > 0) return; // Already has data for that term
+
+    const source = students.filter(s => s.term === fromTerm && s.session === appSettings.session);
+    if (source.length === 0) return;
+
+    const duplicates = source.map((student) => {
+      const base = {
+        ...student,
+        id: generateNewStudentId(),
+        term: toTerm,
+        session: appSettings.session,
+        nextTermBegins: appSettings.nextTermBegins,
+        subjects: JSON.parse(JSON.stringify(INITIAL_SUBJECTS)),
+        conducts: JSON.parse(JSON.stringify(INITIAL_CONDUCTS)),
+        teacherRemark: '',
+        headRemark: '',
+        timesPresent: 0,
+      };
+      return base;
+    });
+
+    setStudents((prev) => [...prev, ...duplicates]);
+
+    if (!isGuest && currentUser) {
+      await Promise.all(duplicates.map((student) => db.upsertStudent(currentUser.id, student)));
+    }
+  };
+
+  const handleTermChange = async (newTerm: string) => {
+    if (newTerm === appSettings.term) return;
+
+    await copyTermRoster(appSettings.term, newTerm);
+
+    const updatedSettings = {
+      ...appSettings,
+      term: newTerm,
+    };
+
+    setAppSettings(updatedSettings);
+    if (currentUser || isGuest) {
+      await saveSettingsImmediate(updatedSettings);
+    }
+
+    // optionally clear currentStudentId to avoid mismatch across terms
+    setCurrentStudentId(null);
+  };
+
   // UI State
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreviewMobile, setShowPreviewMobile] = useState(false);
@@ -90,9 +154,6 @@ function App() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [migrationStatus, setMigrationStatus] = useState<string>('');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Helper: Is Guest?
-  const isGuest = currentUser?.id === 'guest-user';
 
   // --- Effects ---
 
@@ -143,9 +204,13 @@ function App() {
         const savedRoster = localStorage.getItem(rosterKey);
         if (savedRoster) {
           try {
-             // Hydration for legacy data
+             // Hydration for legacy data and per-term normalization
              const parsed = JSON.parse(savedRoster).map((s: any) => ({
                 ...s,
+                id: s.id || generateNewStudentId(),
+                term: s.term || appSettings.term,
+                session: s.session || appSettings.session,
+                nextTermBegins: s.nextTermBegins || appSettings.nextTermBegins,
                 subjects: INITIAL_SUBJECTS.map(initSub => s.subjects?.find((existing: any) => existing.id === initSub.id) || initSub),
                 conducts: INITIAL_CONDUCTS.map(initCon => s.conducts?.find((e: any) => e.id === initCon.id) || initCon)
              }));
@@ -199,8 +264,21 @@ function App() {
              db.fetchStudents(currentUser.id)
           ]);
           
+          const appliedSettings = remoteSettings || appSettings;
           if (remoteSettings) setAppSettings(remoteSettings);
-          if (remoteStudents) setStudents(remoteStudents);
+
+          if (remoteStudents) {
+            const normalized = remoteStudents.map((s: StudentData) => ({
+              ...s,
+              id: s.id || generateNewStudentId(),
+              term: s.term || appliedSettings.term,
+              session: s.session || appliedSettings.session,
+              nextTermBegins: s.nextTermBegins || appliedSettings.nextTermBegins,
+              subjects: s.subjects && s.subjects.length > 0 ? s.subjects : JSON.parse(JSON.stringify(INITIAL_SUBJECTS)),
+              conducts: s.conducts && s.conducts.length > 0 ? s.conducts : JSON.parse(JSON.stringify(INITIAL_CONDUCTS)),
+            }));
+            setStudents(normalized);
+          }
           
         } catch (error) {
           console.error("Failed to load/migrate cloud data", error);
@@ -512,8 +590,19 @@ function App() {
                    <span>{isSyncing ? 'Syncing...' : 'Cloud Connected'}</span>
                 </div>
               )}
-             <div className="text-sm text-gray-500 hidden sm:block">
-                {appSettings.term} • {appSettings.session}
+             <div className="flex items-center gap-2 text-sm text-gray-500 hidden sm:flex">
+                <span className="font-medium">Term:</span>
+                <select
+                  value={appSettings.term}
+                  onChange={(e) => handleTermChange(e.target.value)}
+                  className="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-600 bg-white"
+                >
+                  {TERM_OPTIONS.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+                <span className="text-gray-400">•</span>
+                <span>{appSettings.session}</span>
              </div>
           </div>
         </header>
@@ -522,18 +611,20 @@ function App() {
           <div className="max-w-6xl mx-auto">
             {activeTab === 'dashboard' && (
               <Dashboard 
-                students={students}
+                students={getTermStudents()}
                 teacherName={currentUser.name || appSettings.defaultTeacherName}
                 onCreate={handleCreateStudent}
                 onEdit={handleEditStudent}
                 onViewAll={() => setActiveTab('students')}
-                className={students.length > 0 ? students[0].className : ''}
+                className={getTermStudents().length > 0 ? getTermStudents()[0].className : ''}
               />
             )}
             
             {activeTab === 'students' && (
               <StudentList 
-                students={students}
+                students={getTermStudents()}
+                currentTerm={appSettings.term}
+                currentSession={appSettings.session}
                 onEdit={handleEditStudent}
                 onDelete={handleDeleteStudent}
                 onCreate={handleCreateStudent}

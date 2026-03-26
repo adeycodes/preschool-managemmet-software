@@ -6,12 +6,14 @@ import { calculateAverage } from '../utils';
 
 interface StudentListProps {
   students: StudentData[];
+  currentTerm: string;
+  currentSession: string;
   onEdit: (student: StudentData) => void;
   onDelete: (id: string) => void;
   onCreate: () => void;
 }
 
-export const StudentList: React.FC<StudentListProps> = ({ students, onEdit, onDelete, onCreate }) => {
+export const StudentList: React.FC<StudentListProps> = ({ students, currentTerm, currentSession, onEdit, onDelete, onCreate }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredStudents = students.filter(s => 
@@ -74,7 +76,12 @@ export const StudentList: React.FC<StudentListProps> = ({ students, onEdit, onDe
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{student.fullName || 'Unnamed Student'}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900">{student.fullName || 'Unnamed Student'}</p>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${student.term === currentTerm && student.session === currentSession ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                              {student.term === currentTerm && student.session === currentSession ? 'Current Term' : `${student.term} / ${student.session}`}
+                            </span>
+                          </div>
                           <div className="flex items-center gap-2 sm:hidden mt-1">
                              {/* Mobile Status Icons */}
                              {!hasPhoto && <Camera size={12} className="text-orange-500" />}
