@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppSettings } from '../types';
 import { Save, Upload, Trash2 } from 'lucide-react';
 
@@ -11,6 +11,10 @@ interface SettingsProps {
 export const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
   const [formData, setFormData] = useState<AppSettings>(settings);
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    setFormData(settings);
+  }, [settings]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

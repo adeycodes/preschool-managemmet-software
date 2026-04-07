@@ -1,6 +1,6 @@
 
 import { supabase } from './authService';
-import { StudentData, AppSettings } from '../types';
+import { StudentData, AppSettings, UserSession } from '../types';
 
 /**
  * Database Service
@@ -16,16 +16,30 @@ import { StudentData, AppSettings } from '../types';
  * 2. Table: settings
  *    - user_id: uuid (primary key, references auth.users)
  *    - data: jsonb
+ * 
+ * 3. Table: user_sessions
+ *    - user_id: uuid (primary key, references auth.users)
+ *    - data: jsonb
+ *    - updated_at: timestamp
  */
 
 export const db = {
   // --- Students ---
 
-  async fetchStudents(userId: string): Promise<StudentData[]> {
-    const { data, error } = await supabase
+  async fetchStudents(userId: string, term?: string, session?: string): Promise<StudentData[]> {
+    let query = supabase
       .from('students')
       .select('data')
       .eq('user_id', userId);
+
+    if (term) {
+      query = query.eq('data->>term', term);
+    }
+    if (session) {
+      query = query.eq('data->>session', session);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching students:', error);
@@ -91,6 +105,38 @@ export const db = {
 
     if (error) {
       console.error('Error saving settings:', error);
+      throw error;
+    }
+  },
+
+  // --- User Sessions ---
+
+  async fetchUserSession(userId: string): Promise<UserSession | null> {
+    const { data, error } = await supabase
+      .from('user_sessions')
+      .select('data')
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "Row not found"
+      console.error('Error fetching user session:', error);
+      throw error;
+    }
+    
+    return data ? data.data : null;
+  },
+
+  async saveUserSession(userId: string, session: UserSession) {
+    const { error } = await supabase
+      .from('user_sessions')
+      .upsert({
+        user_id: userId,
+        data: session,
+        updated_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Error saving user session:', error);
       throw error;
     }
   }

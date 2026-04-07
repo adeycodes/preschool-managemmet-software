@@ -21,6 +21,15 @@ export interface User {
   role: 'teacher' | 'admin';
 }
 
+export interface UserSession {
+  activeTab: 'dashboard' | 'students' | 'settings';
+  currentStudentId: string | null;
+  isSidebarOpen: boolean;
+  isEditorActive: boolean;
+  showPreviewMobile: boolean;
+  showAllTerms: boolean;
+}
+
 export interface AppSettings {
   schoolName: string;
   schoolAddress: string;

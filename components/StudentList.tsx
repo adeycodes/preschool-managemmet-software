@@ -8,15 +8,19 @@ interface StudentListProps {
   students: StudentData[];
   currentTerm: string;
   currentSession: string;
+  showAllTerms?: boolean;
+  onToggleShowAllTerms?: () => void;
   onEdit: (student: StudentData) => void;
   onDelete: (id: string) => void;
   onCreate: () => void;
 }
 
-export const StudentList: React.FC<StudentListProps> = ({ students, currentTerm, currentSession, onEdit, onDelete, onCreate }) => {
+export const StudentList: React.FC<StudentListProps> = ({ students, currentTerm, currentSession, showAllTerms = false, onToggleShowAllTerms, onEdit, onDelete, onCreate }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredStudents = students.filter(s => 
+  const termFilteredStudents = showAllTerms ? students : students.filter(s => s.term === currentTerm && s.session === currentSession);
+
+  const filteredStudents = termFilteredStudents.filter(s => 
     s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.rollNumber.includes(searchTerm)
   );
@@ -34,13 +38,23 @@ export const StudentList: React.FC<StudentListProps> = ({ students, currentTerm,
             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
           />
         </div>
-        <button 
-          onClick={onCreate}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition shadow-sm font-medium"
-        >
-          <Plus size={20} />
-          Add Student
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          {onToggleShowAllTerms && (
+            <button 
+              onClick={onToggleShowAllTerms}
+              className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition shadow-sm font-medium"
+            >
+              {showAllTerms ? 'Current Term' : 'All Terms'}
+            </button>
+          )}
+          <button 
+            onClick={onCreate}
+            className="flex items-center justify-center gap-2 bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition shadow-sm font-medium"
+          >
+            <Plus size={20} />
+            Add Student
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -48,6 +62,8 @@ export const StudentList: React.FC<StudentListProps> = ({ students, currentTerm,
           <thead>
             <tr className="bg-gray-50 text-gray-600 text-sm border-b">
               <th className="p-4 font-semibold">Student Name</th>
+              {showAllTerms && <th className="p-4 font-semibold">Term</th>}
+              {showAllTerms && <th className="p-4 font-semibold">Session</th>}
               <th className="p-4 font-semibold hidden sm:table-cell">Class</th>
               <th className="p-4 font-semibold hidden md:table-cell">Status</th>
               <th className="p-4 font-semibold hidden md:table-cell">Avg Score</th>
@@ -91,6 +107,8 @@ export const StudentList: React.FC<StudentListProps> = ({ students, currentTerm,
                         </div>
                       </div>
                     </td>
+                    {showAllTerms && <td className="p-4 text-gray-600">{student.term}</td>}
+                    {showAllTerms && <td className="p-4 text-gray-600">{student.session}</td>}
                     <td className="p-4 hidden sm:table-cell text-gray-600">{student.className}</td>
                     
                     {/* Desktop Status Column */}

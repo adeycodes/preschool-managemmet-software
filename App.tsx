@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Printer, Save, FileSpreadsheet, Download, LogOut, FileText, ChevronLeft, Menu, Cloud, CloudOff, RefreshCw, Upload } from 'lucide-react';
+import { Printer, Save, FileSpreadsheet, Download, LogOut, FileText, ChevronLeft, Menu, Cloud, CloudOff, RefreshCw, Upload, X } from 'lucide-react';
 import InputForm from './components/InputForm';
 import ReportCard from './components/ReportCard';
 import { Auth } from './components/Auth';
@@ -8,7 +8,7 @@ import { Dashboard } from './components/Dashboard';
 import { StudentList } from './components/StudentList';
 import { Settings } from './components/Settings';
 import Sidebar from './components/Sidebar';
-import { StudentData, INITIAL_SUBJECTS, INITIAL_CONDUCTS, User, AppSettings } from './types';
+import { StudentData, INITIAL_SUBJECTS, INITIAL_CONDUCTS, User, AppSettings, UserSession } from './types';
 import { generateRemarks } from './services/geminiService';
 import { generateExcel } from './services/excelService';
 import { authService, supabase } from './services/authService';
@@ -87,9 +87,30 @@ function App() {
   const [students, setStudents] = useState<StudentData[]>([]);
   const [currentStudentId, setCurrentStudentId] = useState<string | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [userSession, setUserSession] = useState<UserSession>({
+    activeTab: 'dashboard',
+    currentStudentId: null,
+    isSidebarOpen: false,
+    isEditorActive: false,
+    showPreviewMobile: false,
+    showAllTerms: false
+  });
 
   // Helper: Is Guest?
   const isGuest = currentUser?.id === 'guest-user';
+
+  // --- Early Handlers (defined before any conditional returns) ---
+  const handleLogout = () => {
+    authService.logout();
+    setCurrentUser(null);
+    setStudents([]);
+    setActiveTab('dashboard');
+    setCurrentStudentId(null);
+    setIsSidebarOpen(false);
+    setIsEditorActive(false);
+    setShowPreviewMobile(false);
+    setShowAllTerms(false);
+  };
 
   const getTermStudents = () => {
     return students.filter(s => s.term === appSettings.term && s.session === appSettings.session);
@@ -155,10 +176,12 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreviewMobile, setShowPreviewMobile] = useState(false);
   const [isExcelGenerating, setIsExcelGenerating] = useState(false);
+  const [showAllTerms, setShowAllTerms] = useState(false);
   
   // Sync State
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
   const [migrationStatus, setMigrationStatus] = useState<string>('');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -201,11 +224,66 @@ function App() {
     const loadAndMigrateData = async () => {
       setIsLoadingData(true);
       
+      if (!isGuest) {
+        const cacheRosterKey = `kinderReport_cached_roster_${currentUser.id}`;
+        const cacheSettingsKey = `kinderReport_cached_settings_${currentUser.id}`;
+        const cacheSessionKey = `kinderReport_session_${currentUser.id}`;
+
+        const cachedRoster = localStorage.getItem(cacheRosterKey);
+        const cachedSettings = localStorage.getItem(cacheSettingsKey);
+        const cachedSession = localStorage.getItem(cacheSessionKey);
+
+        if (cachedSettings) setAppSettings(JSON.parse(cachedSettings));
+        if (cachedSession) {
+          const parsedSession = JSON.parse(cachedSession);
+          setUserSession(parsedSession);
+          setActiveTab(parsedSession.activeTab || 'dashboard');
+          setCurrentStudentId(parsedSession.currentStudentId || null);
+          setIsSidebarOpen(parsedSession.isSidebarOpen || false);
+          setIsEditorActive(parsedSession.isEditorActive || false);
+          setShowPreviewMobile(parsedSession.showPreviewMobile || false);
+          setShowAllTerms(parsedSession.showAllTerms || false);
+        }
+
+        if (cachedRoster) {
+          try {
+            const parsed = JSON.parse(cachedRoster).map((s: any) => ({
+              ...s,
+              id: s.id || generateNewStudentId(),
+              term: s.term || appSettings.term,
+              session: s.session || appSettings.session,
+              nextTermBegins: s.nextTermBegins || appSettings.nextTermBegins,
+              subjects: INITIAL_SUBJECTS.map(initSub => s.subjects?.find((existing: any) => existing.id === initSub.id) || initSub),
+              conducts: INITIAL_CONDUCTS.map(initCon => s.conducts?.find((e: any) => e.id === initCon.id) || initCon)
+            }));
+            setStudents(parsed);
+          } catch (e) {
+            console.error('Error parsing cached roster', e);
+          }
+        }
+
+        setHasLoadedInitialData(true);
+        setIsLoadingData(false);
+      }
+
       if (isGuest) {
         // --- GUEST MODE: Load from Local Storage ---
         const settingsKey = `kinderReport_settings_${currentUser.id}`;
         const savedSettings = localStorage.getItem(settingsKey);
         if (savedSettings) setAppSettings(JSON.parse(savedSettings));
+
+        const sessionKey = `kinderReport_session_${currentUser.id}`;
+        const savedSession = localStorage.getItem(sessionKey);
+        if (savedSession) {
+          const parsedSession = JSON.parse(savedSession);
+          setUserSession(parsedSession);
+          setActiveTab(parsedSession.activeTab || 'dashboard');
+          setCurrentStudentId(parsedSession.currentStudentId || null);
+          setIsSidebarOpen(parsedSession.isSidebarOpen || false);
+          setIsEditorActive(parsedSession.isEditorActive || false);
+          setShowPreviewMobile(parsedSession.showPreviewMobile || false);
+          setShowAllTerms(parsedSession.showAllTerms || false);
+        }
 
         const rosterKey = `kinderReport_roster_${currentUser.id}`;
         const savedRoster = localStorage.getItem(rosterKey);
@@ -224,6 +302,7 @@ function App() {
              setStudents(parsed);
           } catch(e) { console.error("Error parsing local roster", e); }
         }
+        setHasLoadedInitialData(true);
         setIsLoadingData(false);
 
       } else {
@@ -266,9 +345,10 @@ function App() {
           }
 
           // B. Fetch fresh data from Cloud (which now contains migrated data)
-          const [remoteSettings, remoteStudents] = await Promise.all([
+          const [remoteSettings, remoteStudents, remoteSession] = await Promise.all([
              db.fetchSettings(currentUser.id),
-             db.fetchStudents(currentUser.id)
+             db.fetchStudents(currentUser.id),
+             db.fetchUserSession(currentUser.id)
           ]);
           
           const appliedSettings = remoteSettings || appSettings;
@@ -285,6 +365,16 @@ function App() {
               conducts: s.conducts && s.conducts.length > 0 ? s.conducts : JSON.parse(JSON.stringify(INITIAL_CONDUCTS)),
             }));
             setStudents(normalized);
+          }
+
+          if (remoteSession) {
+            setUserSession(remoteSession);
+            setActiveTab(remoteSession.activeTab);
+            setCurrentStudentId(remoteSession.currentStudentId);
+            setIsSidebarOpen(remoteSession.isSidebarOpen);
+            setIsEditorActive(remoteSession.isEditorActive);
+            setShowPreviewMobile(remoteSession.showPreviewMobile);
+            setShowAllTerms(remoteSession.showAllTerms || false);
           }
           
         } catch (error) {
@@ -354,13 +444,62 @@ function App() {
     }
   };
 
+  const saveSessionImmediate = async (newSession: UserSession) => {
+    setUserSession(newSession);
+    if (isGuest) {
+      localStorage.setItem(`kinderReport_session_${currentUser?.id}`, JSON.stringify(newSession));
+    } else if (currentUser) {
+      setIsSyncing(true);
+      try {
+        await db.saveUserSession(currentUser.id, newSession);
+      } finally { setIsSyncing(false); }
+    }
+  };
+
+
+  // --- Effect for Authenticated Local Cache Persistence ---
+  // For auth users: only cache settings & session (cloud syncs roster)
+  useEffect(() => {
+    if (!isGuest && currentUser) {
+      try {
+        localStorage.setItem(`kinderReport_cached_settings_${currentUser.id}`, JSON.stringify(appSettings));
+      } catch (error) {
+        if ((error as any).name === 'QuotaExceededError') {
+          console.warn('localStorage quota exceeded for settings, skipping cache');
+        }
+      }
+    }
+  }, [appSettings, currentUser, isGuest]);
 
   // --- Effect for Guest LocalStorage Persistence ---
+  // For guests: cache full roster (no cloud available)
   useEffect(() => {
     if (isGuest && currentUser) {
-      localStorage.setItem(`kinderReport_roster_${currentUser.id}`, JSON.stringify(students));
+      try {
+        localStorage.setItem(`kinderReport_roster_${currentUser.id}`, JSON.stringify(students));
+      } catch (error) {
+        if ((error as any).name === 'QuotaExceededError') {
+          console.warn('localStorage quota exceeded for roster. Consider deleting old data or using fewer students.');
+        }
+      }
     }
   }, [students, isGuest, currentUser]);
+
+  // --- Effect for Session Persistence ---
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const currentSession: UserSession = {
+      activeTab,
+      currentStudentId,
+      isSidebarOpen,
+      isEditorActive,
+      showPreviewMobile,
+      showAllTerms
+    };
+    
+    saveSessionImmediate(currentSession);
+  }, [activeTab, currentStudentId, isSidebarOpen, isEditorActive, showPreviewMobile, showAllTerms, currentUser, isGuest]);
 
 
   // --- Handlers ---
@@ -368,8 +507,20 @@ function App() {
   const activeStudent = students.find(s => s.id === currentStudentId) || createInitialStudent(appSettings);
 
   const handleUpdateActiveStudent = (updatedData: StudentData) => {
+    const current = students.find(s => s.id === updatedData.id);
     setStudents(prev => prev.map(s => s.id === updatedData.id ? updatedData : s));
-    queueStudentSave(updatedData);
+    
+    // Check if scores changed - save immediately
+    const scoresChanged = current && (
+      JSON.stringify(current.subjects) !== JSON.stringify(updatedData.subjects) ||
+      JSON.stringify(current.conducts) !== JSON.stringify(updatedData.conducts)
+    );
+    
+    if (scoresChanged) {
+      saveStudentImmediate(updatedData);
+    } else {
+      queueStudentSave(updatedData);
+    }
   };
 
   const handleCreateStudent = () => {
@@ -437,17 +588,15 @@ function App() {
     }
   };
 
-  const handleLogout = () => {
-    authService.logout();
-    setCurrentUser(null);
-    setStudents([]); 
+  const handleToggleShowAllTerms = () => {
+    setShowAllTerms(!showAllTerms);
   };
 
   // --- Render ---
 
   if (!currentUser) return <Auth onLogin={setCurrentUser} />;
 
-  if (isLoadingData) {
+  if (isLoadingData && !hasLoadedInitialData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-4">
         {migrationStatus ? (
@@ -460,6 +609,15 @@ function App() {
           <>
              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
              <p className="text-gray-500 font-medium">Syncing your classroom...</p>
+             <button
+              onClick={() => {
+                setIsLoadingData(false);
+                setHasLoadedInitialData(true);
+              }}
+              className="mt-4 sm:hidden px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition"
+            >
+              Continue Anyway
+            </button>
           </>
         )}
       </div>
@@ -597,7 +755,7 @@ function App() {
                    <span>{isSyncing ? 'Syncing...' : 'Cloud Connected'}</span>
                 </div>
               )}
-             <div className="flex items-center gap-2 text-sm text-gray-500">
+             <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
                 <span className="font-medium">Term:</span>
                 <select
                   value={appSettings.term}
@@ -611,6 +769,13 @@ function App() {
                 <span className="text-gray-400">•</span>
                 <span>{appSettings.session}</span>
              </div>
+             <button
+              onClick={handleLogout}
+              className="lg:hidden p-2 text-gray-500 hover:text-red-600 rounded-lg transition"
+              title="Logout"
+            >
+              <LogOut size={20} />
+            </button>
           </div>
         </header>
 
@@ -629,9 +794,11 @@ function App() {
             
             {activeTab === 'students' && (
               <StudentList 
-                students={getTermStudents()}
+                students={students}
                 currentTerm={appSettings.term}
                 currentSession={appSettings.session}
+                showAllTerms={showAllTerms}
+                onToggleShowAllTerms={handleToggleShowAllTerms}
                 onEdit={handleEditStudent}
                 onDelete={handleDeleteStudent}
                 onCreate={handleCreateStudent}
